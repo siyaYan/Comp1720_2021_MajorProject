@@ -4,10 +4,14 @@ function preload() {
 
 function setup() {
   // add your setup code here
+  createCanvas(windowWidth,windowHeight)
 }
 
 function draw() {
   // add your draw code here
+  background(0)
+  fill(250)
+  ellipse(mouseX, mouseY, 100, 100)
 }
 
 // when you hit the spacebar, what's currently on the canvas will be saved (as
