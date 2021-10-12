@@ -18,14 +18,30 @@ function setup() {
   object.y=windowHeight/2
 }
 
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+// Todo: customise the window
+// function responsiveButton() {
+//   if(width > 400) { // large screen breakpoint
+//     rect(width*0.1, width*0.1, width*0.3,width*0.1);
+//     textSize(width*0.05);
+//     text("CLICK ME", width*0.13,width*0.17);
+//   } else { // mobile screen breakpoint
+//     rect(width*0.1, width*0.1, width*0.8,width*0.1);
+//     textSize(width*0.05);
+//     text("CLICK ME", width*0.36 ,width*0.17);
+//   }
+// }
 function draw() {
   // add your draw code here
   background(0)
   i=random(4)
   bounce()
-  fill(250)
-  ellipse(mouseX, mouseY, 100, 100)
-  cube()
+  pointer()
+  processer()
+  // responsiveButton()
 }
 function bounce(){
   if(object.x>=windowWidth||object.x<=0){
@@ -38,7 +54,14 @@ function bounce(){
     object.y+=speed.y
   
 }
-function cube(){
+function pointer(){
+  push()
+  fill(250)
+  ellipse(mouseX, mouseY, 100, 100)
+  pop()
+}
+function processer(){
+  push()
   if(i<=1){
     fill(200)
   }
@@ -49,6 +72,7 @@ function cube(){
     fill(50)
   }
   ellipse(object.x, object.y, 100, 100)
+  pop()
 }
 
 // when you hit the spacebar, what's currently on the canvas will be saved (as
