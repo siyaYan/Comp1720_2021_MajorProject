@@ -8,7 +8,8 @@
 // }
 // let i=0
 
-
+//Todo: dead sun color //mature sun& 
+//birth & dead sun size cos & sin
 function preload() {
   // load any assets (images, sounds, etc.) here
 }
@@ -31,7 +32,7 @@ var views=[30,80,0]
 var sec=0
 var during=180//whole time 3*60sec
 var route=60 //each secen time
-
+var next=0
 
 // for obit & sun
 var shapeChoose=2;
@@ -41,6 +42,7 @@ var circleSpace=50;
 var circleNum=0;
 var sunColor;
 var obitNum=[]
+var sunPos;
 
 // for planets
 var planetRadius=20
@@ -55,16 +57,27 @@ var acc=10
 // for satellite
 var sateRadius=50
 var sateLine=65
-var satePos=[]
+var satePos=[]//3d
 var sateColor=[]
 var sateNum=2
+var pos=[] //2d
+
+//for scence1
+var points=[]
+var mult=0.005
+var sence1Color;
+var density =30
 
 function setup() {
   // add your setup code here
-  createCanvas(windowWidth,windowHeight,WEBGL)
-  angleMode(DEGREES)
+  createCanvas(windowWidth,windowHeight,WEBGL);
+  addScreenPositionFunction();
+  background(30)
+  angleMode(DEGREES);
+  rectMode(CENTER)
   ellipseMode(RADIUS);
-  frameRate(20)
+  // noiseDetail(1)
+  frameRate(20);
   // object.x=windowWidth/2
   // object.y=windowHeight/2
   for(let i=0;i<sateNum;i++){
@@ -79,6 +92,23 @@ function setup() {
   }
   print(sateColor)
   sunColor=createVector(0, 0, 0)
+
+  // for scence1
+  let space = width/density
+  for(let i=0;i<width;i+=space){
+    for(let j=0;j<height;j+=space){
+      let p= createVector(i+random(-10,10), j+random(-10, 10))
+      points.push(p)
+    }
+  }
+  shuffle(points, true)
+  mult=random(0.002,0.01)
+  sence1Color=[random(255),
+    random(255),
+    random(255),
+    random(255),
+    random(255),
+    random(255)]
 }
 
 function windowResized() {
@@ -88,21 +118,59 @@ function windowResized() {
 function draw() {
   // add your draw code here
   sec=int(millis()/1000)//1sec
-  drawBackground()
-  viewMove()
-  updateSun()
-  drawSun()
-  updatePlanet()
-  //sun is red
-  if(sec%during>=30){
-    drawSate(0)
-    if(sec>=33){
-      drawSate(1)
+  // drawBackground()
+  if((sec%during<=route||sec%during>during-30)&&next==0){
+    drawBackground()
+    viewMove()
+    updateSun()
+    drawSun()
+    updatePlanet()
+    //sun is red && sun not dead
+    if(sec%during>=30&&during-sec%during>5){
+      drawSate(0)
+      if(sec>=33){
+        drawSate(1)
+      }
+    }
+  }else{
+    translate(-windowWidth/2, -windowHeight/2)
+    if(next==1){
+      scence1()
     }
   }
 
 }
+// scence1
+function scence1(){
+  createGraphics(windowWidth, windowHeight)
+  // background(100)
+  // fill(200,100)
+  noStroke()
+  // rect(0,0,windowWidth/5*4, windowHeight/5*4)
+  let view=frameCount*5<=points.length?frameCount*5:points.length
+  // print(view)
+  for(let i=0;i<view;i++){
+    let r=map(points[i].x,0,width,sence1Color[0],sence1Color[1])
+    let g=map(points[i].y,0,height,sence1Color[2],sence1Color[3])
+    let b=map(points[i].x,0,width,sence1Color[4],sence1Color[5])
+    fill(r,g,b)
+    let angle=map(noise(points[i].x*mult, points[i].y*mult),0,1,0,720)
+    points[i].add(createVector(cos(angle), sin(angle)))
+    ellipse(points[i].x, points[i].y,1)
+  }
+  if(sec>10){
+    // bg.remove()
+  }
+  // print('in1')
 
+}
+// scence2
+function scence2(){
+  createGraphics(windowWidth, windowHeight)
+  fill(200,100)
+  rect(0,0,windowWidth/5*4, windowHeight/5*4)
+  print('in2')
+}
 // main scence
 function drawBackground(){
   background(20)
@@ -129,113 +197,112 @@ function viewMove(){
   let dirY = (mouseY / height - 0.5) * 2;
   directionalLight(250, 250, 250, -dirX, -dirY, -1);
 }
-//todo: modify time change sec to framecount
+//todo: test
 function updateSun(){
-  //sun birth color
+  //sun birth 30sec
   if(sec%during<30){
-    sunColor.x=min(250,abs(sin(sec)*2)*220+5)
-    sunColor.y=abs(sin(sec)*2)*150+5
-    sunColor.z=abs(sin(sec)*2)*90+5
-    if(sec<=1){
+    sunColor.x=abs(sin(frameCount/4))*220+30
+    sunColor.y=abs(sin(frameCount/4))*150+5
+    sunColor.z=abs(sin(frameCount/4))*90+5
+    if(sec%during<=1){
       initObitRadius=50*abs(sin(frameCount*5))
       circleNum=0
     }
-    else if(sec<3){
-      initObitRadius=55
+    else if(sec%during<3){
+      initObitRadius=50+abs(sin(frameCount*5))*5
       circleNum=1
-    }else if(sec<6){
-        initObitRadius=60
+    }else if(sec%during<6){
+        initObitRadius=55+abs(sin(frameCount*5))*5
         circleNum=2
-    }else if(sec<9){
-      initObitRadius=65
+    }else if(sec%during<9){
+      initObitRadius=60+abs(sin(frameCount*5))*5
       circleNum=3
     }
-    else if(sec<12){
-      initObitRadius=70
+    else if(sec%during<12){
+      initObitRadius=65+abs(sin(frameCount*5))*5
       circleNum=4
     }
-    else if(sec<15){
-      initObitRadius=75
+    else if(sec%during<15){
+      initObitRadius=70+abs(sin(frameCount*5))*5
       circleNum=5
     }
-    else if(sec<18){
-      initObitRadius=80
+    else if(sec%during<18){
+      initObitRadius=75+abs(sin(frameCount*5))*5
       circleNum=6
     }
-    else if(sec<21){
-      initObitRadius=85
+    else if(sec%during<21){
+      initObitRadius=80+abs(sin(frameCount*5))*5
       circleNum=7
     }
-    else if(sec<24){
-      initObitRadius=90
+    else if(sec%during<24){
+      initObitRadius=85+abs(sin(frameCount*5))*5
       circleNum=8
     }
-    else if(sec<27){
-      initObitRadius=95
+    else if(sec%during<27){
+      initObitRadius=90+abs(sin(frameCount*5))*5
       circleNum=9
     }else{
-      initObitRadius=100
+      initObitRadius=95+abs(sin(frameCount*5))*5
       circleNum=10
     }
   }else{
+    //sun mature 10sec
     if(sec%during<40){
       //sun mature color
     sunColor.x=min(255,map(sin(frameCount),-1,1,225,250)+(sec%during-30)*2)
     sunColor.y=max(30,map(cos(frameCount),-1,1,180,150)-(sec%during-30)*10)
     sunColor.z=max(0,map(cos(frameCount),1,-1,90,50)-(sec%during-30)*6)
-
+    // sunColor.x=max(map(sin(frameCount),-1,1,225,250)+(sec%during-30)*2,map(sin(frameCount),-1,1,225,250)-(sec%during-50))
+    //   sunColor.y=max(map(cos(frameCount),-1,1,180,150)-(sec%during-30)*10,map(cos(frameCount),-1,1,180,150)-(sec%during-50))
+    //   sunColor.z=max(map(cos(frameCount),1,-1,90,50)-(sec%during-30)*6,map(cos(frameCount),1,-1,90,50)-(sec%during-50))
+    initObitRadius=98+5*abs(sin(frameCount*5))
     }
-    //test
-    if(sec%during>50){
+    //sun dead 30sec
+    if(sec%during>during-30){
       //sun dead color1
+      // sunColor.x=abs(cos(frameCount/4))*220
+      // sunColor.y=abs(cos(frameCount/4))*100-50
+      // sunColor.z=abs(cos(frameCount/4))*90-30
+
       sunColor.x=max(map(sin(frameCount),-1,1,225,250)+(sec%during-30)*2,map(sin(frameCount),-1,1,225,250)-(sec%during-50))
       sunColor.y=max(map(cos(frameCount),-1,1,180,150)-(sec%during-30)*10,map(cos(frameCount),-1,1,180,150)-(sec%during-50))
       sunColor.z=max(map(cos(frameCount),1,-1,90,50)-(sec%during-30)*6,map(cos(frameCount),1,-1,90,50)-(sec%during-50))
-      if(sec%during>60){
-        //sun dead color2
-        sunColor.x=0
-        sunColor.y=0
-        sunColor.z=0
-      // sunColor.x=map(sin(frameCount),-1,1,0,250)
-      // sunColor.y=map(cos(frameCount),-1,1,0,250)
-      // sunColor.z=map(cos(frameCount),-1,1,0,250)
-      }
-      if(sec%during-50<3){
-        initObitRadius=95
+      if(abs(during-(sec%during)-30)<3){
+        initObitRadius=95-abs(cos(frameCount*5))*5
         circleNum=9
-      }else if(sec%during-50<6){
-          initObitRadius=90
+      }else if(abs(during-(sec%during)-30)<6){
+          initObitRadius=90-abs(cos(frameCount*5))*5
           circleNum=8
-      }else if(sec%during-50<9){
-        initObitRadius=85
+      }else if(abs(during-(sec%during)-30)<9){
+        initObitRadius=85-abs(cos(frameCount*5))*5
         circleNum=7
       }
-      else if(sec%during-50<12){
-        initObitRadius=80
+      else if(abs(during-(sec%during)-30)<12){
+        initObitRadius=80-abs(cos(frameCount*5))*5
         circleNum=6
       }
-      else if(sec%during-50<15){
-        initObitRadius=75
+      else if(abs(during-(sec%during)-30)<15){
+        initObitRadius=75-abs(cos(frameCount*5))*5
         circleNum=5
         planetNum=0
       }
-      else if(sec%during-50<18){
-        initObitRadius=70
+      else if(abs(during-(sec%during)-30)<18){
+        initObitRadius=70-abs(cos(frameCount*5))*5
         circleNum=4
       }
-      else if(sec%during-50<21){
-        initObitRadius=65
+      else if(abs(during-(sec%during)-30)<21){
+        initObitRadius=65-abs(cos(frameCount*5))*5
         circleNum=3
       }
-      else if(sec%during-50<24){
-        initObitRadius=60
+      else if(abs(during-(sec%during)-30)<24){
+        initObitRadius=60-abs(cos(frameCount*5))*5
         circleNum=2
       }
-      else if(sec%during-50<27){
-        initObitRadius=55
+      else if(abs(during-(sec%during)-30)<27){
+        initObitRadius=55-abs(cos(frameCount*5))*5
         circleNum=1
       }else{
-        initObitRadius=50
+        initObitRadius=50*abs(cos(frameCount*5))
         circleNum=0
       }
       
@@ -256,7 +323,8 @@ function updatePlanet(){
       planetColor[i]=(createVector(r, g, b))
     }
   }
-  if(sec<=15){
+  //planet birth
+  if(sec%during<=15){
     if(sec%10<=5){  
       // speedInit+=acc
       // num=1
@@ -282,39 +350,7 @@ function updatePlanet(){
     }
   }
   else{
-    if(sec%10<=5){  
-      if(sec%10>3){
-        speedInit+=acc
-        num=0
-        drawPlanet(num,speedInit)
-        num=1
-        drawPlanet(num,speedInit)  
-      }else{
-        speedInit+=acc
-        num=2
-        drawPlanet(num,speedInit+random(20,acc/2))  
-        num=3
-        drawPlanet(num,speedInit)  
-        num=4
-        drawPlanet(num,speedInit+random(20,acc/2))  
-      }
-    } else{
-      if(sec%10<7){
-        num=5
-        speedInit+=acc
-        drawPlanet(num,speedInit+random(20,acc/2))
-        num=6
-        drawPlanet(num,speedInit)
-      }else{
-        num=7
-        speedInit+=acc
-        drawPlanet(num,speedInit)
-        num=8
-        drawPlanet(num,speedInit+random(20,acc/2))
-        num=9
-        drawPlanet(num,speedInit)
-      }
-    }
+    //planet & sun dead 30sec
     if(sec%during>during-30){
       if(sec%during-during+30<=15){  
         speedInit+=acc
@@ -327,11 +363,52 @@ function updatePlanet(){
         num=2
         drawPlanet(num,speedInit)
         }
+      }else{
+        print('planets dead!')
       }
     }
-  print(sec)
-  
+    else{
+      //in first scence
+      if(sec%during<route){
+        if(sec%10<=5){  
+          if(sec%10>3){
+            speedInit+=acc
+            num=0
+            drawPlanet(num,speedInit)
+            num=1
+            drawPlanet(num,speedInit)  
+          }else{
+            speedInit+=acc
+            num=2
+            drawPlanet(num,speedInit+random(20,acc/2))  
+            num=3
+            drawPlanet(num,speedInit)  
+            num=4
+            drawPlanet(num,speedInit+random(20,acc/2))  
+          }
+        } else{
+          if(sec%10<7){
+            num=5
+            speedInit+=acc
+            drawPlanet(num,speedInit+random(20,acc/2))
+            num=6
+            drawPlanet(num,speedInit)
+          }else{
+            num=7
+            speedInit+=acc
+            drawPlanet(num,speedInit)
+            num=8
+            drawPlanet(num,speedInit+random(20,acc/2))
+            num=9
+            drawPlanet(num,speedInit)
+          }
+        }
+      }else{
+        // print('do no draw universe!')
+      }
+    }   
   }
+  print(sec)
 }
 
 function drawPlanet(num,speed) {
@@ -343,6 +420,7 @@ function drawPlanet(num,speed) {
   sphere(planetRadius);
   pop()
 }
+
 //test the end at 50
 function drawSun(){
   push()
@@ -376,14 +454,11 @@ function drawSun(){
     push()
     // strength light
     directionalLight(250, 250, 250, 0, 0, -10);
-    //draw sun
-    // var r1=min(255,map(sin(frameCount),-1,1,225,250)+sec)
-    // var g1=max(30,map(cos(frameCount),-1,1,180,150)-sec*5)
-    // var b1=max(0,map(j,1,circleNum,90,50)-sec*3)
-    // after 30 sec the sun mature(red)
+
     //turn yellow to red
     fill(sunColor.x,sunColor.y,sunColor.z)
     noStroke()
+    sunPos=screenPosition(0,0,0)
     sphere(initObitRadius)
     pop()
     
@@ -398,6 +473,7 @@ translate(satePos[i].x, satePos[i].y, satePos[i].z)
 rotateX(90+map(sin(speedInit/5),-1,1,-30,30));
 rotateZ(map(sin(speedInit/5),-1,1,-30,30));
 
+pos[i]=screenPosition(0,0,0)
 fill(sateColor[i].x,sateColor[i].y,sateColor[i].z)
 sphere(sateRadius);
 fill(sateColor[1+i].x,sateColor[1+i].y,sateColor[i+1].z)
@@ -405,7 +481,6 @@ cylinder(sateLine, 10);
 // torus(sateLine, 10)
 pop()
 }
-
 
 //interactive part with mouse(drag/click/doubleClick) and press up&down key
 function mouseDragged() {
@@ -426,22 +501,55 @@ function keyPressed() {
   }
 }
 function mouseClicked() {
-  if(dist(mouseX,mouseY,windowWidth/2,windowHeight/2)<=initObitRadius){
-    print('click sun!')
-    if(acc<50){
-      acc+=8
+  //sun exist
+  if(sunPos){
+    if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,sunPos.x,sunPos.y)<=initObitRadius){
+      print('click sun!')
+      if(acc<50){
+        acc+=8
+      }
+      print('acc: '+acc)
     }
   }
-  print('acc: '+acc)
+  
+  // sate show up
+  if(pos.length>0){
+    if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[0].x,pos[0].y)<=sateRadius){
+    print('click sate! 1')
+  }
+  if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[1].x,pos[1].y)<=sateRadius){
+    print('click sate! 2')
+  }
+}
+   
+  print(mouseX-windowWidth/2,mouseY-windowHeight/2)
 }
 function doubleClicked() {
-  if(dist(mouseX,mouseY,windowWidth/2,windowHeight/2)<=initObitRadius){
-    print('reset acc!')
-      acc=10
+  //sun exist
+  if(sunPos){
+    if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,sunPos.x,sunPos.y)<=initObitRadius){
+      print('reset acc!')
+        acc=10
+        // test
+        next=1
+        scence1()
+    }
+  }
+  
+  if(pos.length>0){
+    if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[0].x,pos[0].y)<=sateRadius){
+    next=1
+    print('doubleclick sate! 1')
+    scence1()
+  }
+  if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[1].x,pos[1].y)<=sateRadius){
+    next=2
+    print('doubleclick sate! 2')
+    scence2()
   }
   print('reset acc: '+acc)
+  }
 }
-
 
 
 
