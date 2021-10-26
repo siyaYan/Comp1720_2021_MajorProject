@@ -1,3 +1,23 @@
+//feedback
+//add sound interaction
+
+//for main scene
+//mouse wheel zoom in(main)
+
+//for scene 1
+//mouse wheel speed up(1)
+//mouse click left right change weather(1) 
+//click on the cloud change cloud color/click on the landscape pause/click other change color
+//cloud floating with mouse
+
+//for scene 2
+//tree glowing 10sec
+//interaction last 40sec
+//wind blew the tree with mouse move
+//double click the tree with fruits/single click leaves falling
+//click other space change forms
+//wheel speed up glowing
+
 //Todo:
 //1/add zoom_in/floating/color_change/ for satellite
 //2/modify the faulty scene pos with click
@@ -8,6 +28,10 @@
 //constructor for objects
 function preload() {
   // load any assets (images, sounds, etc.) here
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
 }
 
 // function responsiveButton() {
@@ -25,8 +49,9 @@ function preload() {
 //for space & time
 var views=[30,80,0]
 var sec=0
-var during=180//whole time 3*50sec+30sec(dead)
+var during=200//whole time 20sec(explodT)+3*50sec(each scene)+30sec(dead)
 var route=50 //each secen time
+var dead=30 //end of the scene
 // var next=0 //do not use
 
 // for obit & sun
@@ -63,7 +88,7 @@ var particles=[]
 var particleNum=200
 
 // for scene1
-var move=1
+var move=0
 var wholeSize;
 var rRange;
 var bRange;
@@ -92,6 +117,7 @@ function setup() {
   noiseDetail(1)
   frameRate(20);
 
+  // for satellites
   for(let i=0;i<satelliteNum;i++){
     let s=createVector((random(windowWidth/2-satelliteLine*2-20,initObitRadius+satelliteLine+2))*random([-1,1]), 
     random(initObitRadius+satelliteLine+2, initObitRadius*1.8)*random([1,-0.5]), 
@@ -105,12 +131,12 @@ function setup() {
   print(satelliteColor)
   sunColor=createVector(0, 0, 0)
 
- //for scene1
- wholeSize=createVector(windowWidth/2,windowHeight/2)
- landscapePos=createVector(0, 0, 0)
- rRange=shape==1?createVector(100, 200):createVector(random(100,200),0)
- gRange=shape==1?createVector(200, 0):createVector(random(150,180),0)
- bRange=shape==1?createVector(0, 10):createVector(random(30,50),0)
+  //for scene1
+  wholeSize=createVector(windowWidth/2,windowHeight/2)
+  landscapePos=createVector(0, 0, 0)
+  rRange=shape==1?createVector(100, 200):createVector(random(100,200),0)
+  gRange=shape==1?createVector(200, 0):createVector(random(150,180),0)
+  bRange=shape==1?createVector(0, 10):createVector(random(30,50),0)
 
   // for scene2
   let space = width/density
@@ -208,7 +234,7 @@ function drawParticles(){
 function drawPlanets(){
   //random planet color and pos and order every 10 sec
  //planet birth
- if(sec%during%5==0){
+ if(sec%5==0){
 // for planets
    for(let i=0;i<planetNum;i++){
     // obitNum[i]=int(map(int(random(0,planetNum)),0,planetNum,circleNum,0))
@@ -223,8 +249,9 @@ function drawPlanets(){
     planets.push(p)
   }
  } 
- if(sec%during<route&&sec%during<=20){
-   if(sec%during<10){  
+ //in very first scene slowly produce planets
+ if(sec<=20+explodT){
+   if(sec<10+explodT){  
      if(sec%10>3){
       num=0
       planets[num].update(0)
@@ -238,7 +265,7 @@ function drawPlanets(){
       planets[num].update(4)
       planets[num].show()
     } 
-  }else{
+    }else{
     if(sec%10>=3){
       num=3
       planets[num].update(3)
@@ -265,28 +292,8 @@ function drawPlanets(){
    }
  }
  else{
-   //planet & sun dead 30sec
-   if(sec%during>during-30){
-     if(sec%during-during+30<=15){  
-       
-       if(sec%during-during+30<=8){
-        num=0
-        planets[num].update(-5)
-        planets[num].show() 
-       }else{
-        num=1
-        planets[num].update(3)
-       planets[num].show() 
-        num=2
-        planets[num].update(5)
-       planets[num].show() 
-       }
-     }else{
-       print('planets dead!')
-     }
-   }
-  //in first scene
-  if(sec%during<route){
+    //in first scene normal produce planets
+    if(sec<route+explodT){
        if(sec%10<=5){  
          if(sec%10>3){
            num=0
@@ -326,51 +333,60 @@ function drawPlanets(){
           planets[num].show() 
          }
        }
-  }else{
-       // print('do no draw universe!')
-  }
+    }
+    //planet & sun dead 30sec
+    if(sec>during-30){
+      if(sec-during+30<=15){  
+        if(sec-during+30<=8){
+         num=0
+         planets[num].update(-5)
+         planets[num].show() 
+        }else{
+         num=1
+         planets[num].update(3)
+        planets[num].show() 
+         num=2
+         planets[num].update(5)
+        planets[num].show() 
+        }
+      }else{
+        print('planets dead!')
+      }
+    }
      
  }
  print(sec)
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
-}
-
 function draw() {
-  // add your draw code here
-  sec=int(millis()/1000)//1sec
+  sec=int(millis()/1000)%during// 1 sec in 200sec
   // test()
-  print(sec%during)
-  if(sec%during-explodT*(int(sec/during))<explodT&&sec%during-explodT*(int(sec/during))>=0){
+  print(sec)
+  if(sec<=explodT){
     drawParticles()
   }else{
-    //after explosing start from 0sec (for every during)
-    sec-=explodT*(int(sec/during)+1)
-    if(sec%during>route&&sec%during<=route*2){
+    if(sec>route+explodT&&sec<=route*2+explodT){
       //landscape changing
       print('in s1')
       scene1()
     }
     //not yet 
-    if(sec%during>route*2&&sec%during<route*3){
+    if(sec>route*2+explodT&&sec<route*3+explodT){
       //planet glowing
       print('in s2')
       scene2()
     }
-    print(sec)
     //in main scene or dead scene
-    if((sec%during<=route||sec%during>during-30)){
+    if((sec<=route+explodT||sec>during-30)){
       drawBackground()
       viewMove()
       updateSun()
       drawSun()
       drawPlanets()
       //sun is red && sun not dead
-      if(sec%during>=30&&during-sec%during>5){
+      if(sec>=30+explodT&&during-sec>5){
         drawsatellite(0)
-        if(sec>=33){
+        if(sec>=33+explodT){
           drawsatellite(1)
         }
       }
@@ -424,16 +440,16 @@ function scene1(){
 }
 // scene2
 function scene2(){
-  if(sec%during%route<10){
+  if(sec%route<10){
     push()
     translate(-windowWidth/2, -windowHeight/2)
     noStroke()
     let view=frameCount*50<=points.length?frameCount*50:points.length
     // print(view)
     for(let i=0;i<view;i++){
-      let r=map(points[i].x,0,width,sence1Color[0],sence1Color[1])
-      let g=map(points[i].y,0,height,sence1Color[2],sence1Color[3])
-      let b=map(points[i].x,0,width,sence1Color[4],sence1Color[5])
+      let r=map(points[i].x,0,width,scene2Color[0],scene2Color[1])
+      let g=map(points[i].y,0,height,scene2Color[2],scene2Color[3])
+      let b=map(points[i].x,0,width,scene2Color[4],scene2Color[5])
       var a=map(dist(points[i].x,points[i].y,mouseX,mouseY),0,windowHeight/2,400,100)
       fill(r,g,b,a)
       let angle=map(noise(points[i].x*mult, points[i].y*mult),0,1,0,720)
@@ -477,51 +493,51 @@ function viewMove(){
 //todo sun shrink speed
 function updateSun(){
   //sun birth 30sec
-  if(sec%during<30){
-    sunColor.x=map(sin(sec%during*3),0,1,50,250)
-    sunColor.y=map(sin(sec%during*3),0,1,15,150)
-    sunColor.z=map(sin(sec%during*3),0,1,0,30)
+  if(sec<30+explodT){
+    sunColor.x=map(sin(sec*3),0,1,50,250)
+    sunColor.y=map(sin(sec*3),0,1,15,150)
+    sunColor.z=map(sin(sec*3),0,1,0,30)
     // sunColor.z=abs(sin(frameCount/4))*90+5
-    if(sec%during<=2){
+    if(sec<=2+explodT){
       circleNum=0
-      if(sec%during<=1){
+      if(sec<=1+explodT){
         //mismatch speed
         initObitRadius=windowHeight/2-windowHeight/2*abs(sin(frameCount*2))
       }else{
         initObitRadius=50*abs(sin(frameCount*5))
       }
     }
-    else if(sec%during<3){
+    else if(sec<3+explodT){
       initObitRadius=50+abs(sin(frameCount*5))*5
       circleNum=1
-    }else if(sec%during<6){
+    }else if(sec<6+explodT){
         initObitRadius=55+abs(sin(frameCount*5))*5
         circleNum=2
-    }else if(sec%during<9){
+    }else if(sec<9+explodT){
       initObitRadius=60+abs(sin(frameCount*5))*5
       circleNum=3
     }
-    else if(sec%during<12){
+    else if(sec<12+explodT){
       initObitRadius=65+abs(sin(frameCount*5))*5
       circleNum=4
     }
-    else if(sec%during<15){
+    else if(sec<15+explodT){
       initObitRadius=70+abs(sin(frameCount*5))*5
       circleNum=5
     }
-    else if(sec%during<18){
+    else if(sec<18+explodT){
       initObitRadius=75+abs(sin(frameCount*5))*5
       circleNum=6
     }
-    else if(sec%during<21){
+    else if(sec<21+explodT){
       initObitRadius=80+abs(sin(frameCount*5))*5
       circleNum=7
     }
-    else if(sec%during<24){
+    else if(sec<24+explodT){
       initObitRadius=85+abs(sin(frameCount*5))*5
       circleNum=8
     }
-    else if(sec%during<27){
+    else if(sec<27+explodT){
       initObitRadius=90+abs(sin(frameCount*5))*5
       circleNum=9
     }else{
@@ -530,50 +546,50 @@ function updateSun(){
     }
   }else{
     //sun mature 10sec
-    if(sec%during<40){
+    if(sec<40+explodT){
       //sun mature color
-    sunColor.x=min(255,map(sin(frameCount),-1,1,225,250)+(sec%during-30)*2)
-    sunColor.y=max(30,map(cos(frameCount),-1,1,180,150)-(sec%during-30)*10)
-    sunColor.z=max(10,map(cos(frameCount),1,-1,90,50)-(sec%during-30)*6)
+    sunColor.x=min(255,map(sin(frameCount),-1,1,225,250)+(sec-30)*2)
+    sunColor.y=max(30,map(cos(frameCount),-1,1,180,150)-(sec-30)*10)
+    sunColor.z=max(10,map(cos(frameCount),1,-1,90,50)-(sec-30)*6)
     initObitRadius=98+5*abs(sin(frameCount*5))
     }
     //sun dead 30sec
-    if(sec%during>during-30){
-      sunColor.x=map((sin((sec%during-during+30)*3)),0,1,250,30)
-      sunColor.y=map((sin((sec%during-during+30)*3)),0,1,50,10)
-      sunColor.z=map((sin((sec%during-during+30)*3)),0,1,10,0)
-      if(abs(during-(sec%during)-30)<3){
+    if(sec>during-30){
+      sunColor.x=map((sin((sec-during+30)*3)),0,1,250,30)
+      sunColor.y=map((sin((sec-during+30)*3)),0,1,50,10)
+      sunColor.z=map((sin((sec-during+30)*3)),0,1,10,0)
+      if(abs(during-(sec)-30)<3){
         initObitRadius=95-abs(cos(frameCount*5))*5
         circleNum=9
-      }else if(abs(during-(sec%during)-30)<6){
+      }else if(abs(during-(sec)-30)<6){
         initObitRadius=90-abs(cos(frameCount*5))*5
         circleNum=8
-      }else if(abs(during-(sec%during)-30)<9){
+      }else if(abs(during-(sec)-30)<9){
         initObitRadius=85-abs(cos(frameCount*5))*5
         circleNum=7
       }
-      else if(abs(during-(sec%during)-30)<12){
+      else if(abs(during-(sec)-30)<12){
         initObitRadius=80-abs(cos(frameCount*5))*5
         circleNum=6
       }
-      else if(abs(during-(sec%during)-30)<15){
+      else if(abs(during-(sec)-30)<15){
         initObitRadius=75-abs(cos(frameCount*5))*5
         circleNum=5
         planetNum=0
       }
-      else if(abs(during-(sec%during)-30)<18){
+      else if(abs(during-(sec)-30)<18){
         initObitRadius=70-abs(cos(frameCount*5))*5
         circleNum=4
       }
-      else if(abs(during-(sec%during)-30)<21){
+      else if(abs(during-(sec)-30)<21){
         initObitRadius=65-abs(cos(frameCount*5))*5
         circleNum=3
       }
-      else if(abs(during-(sec%during)-30)<24){
+      else if(abs(during-(sec)-30)<24){
         initObitRadius=60-abs(cos(frameCount*5))*5
         circleNum=2
       }
-      else if(abs(during-(sec%during)-30)<27){
+      else if(abs(during-(sec)-30)<27){
         initObitRadius=55-abs(cos(frameCount*5))*5
         circleNum=1
       }else{
@@ -658,6 +674,12 @@ function mouseDragged() {
 //add function
 function keyPressed() {
   if (keyCode === UP_ARROW) {
+    views[1]-=windowHeight/2/10
+
+  } else if (keyCode === DOWN_ARROW) {
+    views[1]+=windowHeight/2/10
+  }
+  if (keyCode === ) {
     views[1]-=windowHeight/2/10
 
   } else if (keyCode === DOWN_ARROW) {
