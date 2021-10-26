@@ -78,7 +78,7 @@ var shape=1;
 //for scene2
 var points=[]
 var mult=0.005
-var sence1Color;
+var sence2Color;
 var density =30
 
 function setup() {
