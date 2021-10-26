@@ -105,6 +105,9 @@ var points=[]
 var mult=0.005
 var sence2Color;
 var density =30
+var treeColor;
+var click=0;
+var fruits=false;
 
 function setup() {
   // add your setup code here
@@ -139,6 +142,7 @@ function setup() {
   bRange=shape==1?createVector(0, 10):createVector(random(30,50),0)
 
   // for scene2
+  // Treelen=windowHeight/4
   let space = width/density
   for(let i=0;i<width;i+=space){
     for(let j=0;j<height;j+=space){
@@ -149,8 +153,102 @@ function setup() {
   shuffle(points, true)
   mult=random(0.002,0.01)
   sence2Color=[random(255),random(255),random(255),random(255),random(255),random(255)]
-  
+  treeColor=createVector(80, 120, 40)
 }
+let Treelen=250
+
+function drawTree(){
+  randomSeed(1)
+  background(0,0,30)
+  frameRate(60)
+  translate(0, windowHeight/2-Treelen/10, 0)
+  if(sec>20){
+    //add fruits
+    fruits=true;
+  }
+  rotateY(map(mouseX,-windowWidth/2,windowWidth/2,-360,360))
+  branch(Treelen)
+}
+
+function branch(len){
+  strokeWeight(map(len,Treelen/10,Treelen,1,15))
+  stroke(70,40,20)
+  line(0,0,0,0,-len-2,0)
+  translate(0, -len, 0)
+  if(len>Treelen/10){
+    for(let i=0;i<3;i++){
+      rotateY(random(100,140))
+      push()
+      rotateZ(random(20,40))
+      //test
+      // print(frameCount)
+      let glow=sec>=20?1:sin(frameCount)
+      branch(len*(0.5+0.15*glow))
+      // branch(len*0.7)
+      pop()
+    }
+  }else{
+    noStroke()
+    fill(treeColor.x+random(-20,20),treeColor.y+random(-20,20),treeColor.z+random(-20,20),200)
+    translate(5*Treelen/100, 0, 0)
+    rotateZ(90)
+    beginShape()
+    for(let i=45;i<135;i++){
+      let radius=10*Treelen/100;
+      vertex(radius*cos(i), radius*sin(i))
+    }
+    for(let j=135;j>45;j--){
+      let radius=10*Treelen/100;
+      vertex(radius*cos(j), radius*sin(-j)+Treelen/10)
+    }
+    // push()
+    // translate(10, 0, 0)
+    // fill(0)
+    // for(let k=5;k>0;k--){
+    //   let radius=20*Treelen/100;
+    //   vertex(radius*cos(k)**2, radius*sin(k)**2)
+    // }
+    // pop()
+    endShape(CLOSE)
+  }
+}
+
+function draw() {
+  sec=int(millis()/1000)%during// 1 sec in 200sec
+  drawTree()
+  print(sec)
+  // if(sec<=explodT){
+  //   drawParticles()
+  // }else{
+  //   if(sec>route+explodT&&sec<=route*2+explodT){
+  //     //landscape changing
+  //     print('in s1')
+  //     scene1()
+  //   }
+  //   //not yet 
+  //   if(sec>route*2+explodT&&sec<route*3+explodT){
+  //     //planet glowing
+  //     print('in s2')
+  //     scene2()
+  //   }
+  //   //in main scene or dead scene
+  //   if((sec<=route+explodT||sec>during-30)){
+  //     drawBackground()
+  //     viewMove()
+  //     updateSun()
+  //     drawSun()
+  //     drawPlanets()
+  //     //sun is red && sun not dead
+  //     if(sec>=30+explodT&&during-sec>5){
+  //       drawsatellite(0)
+  //       if(sec>=33+explodT){
+  //         drawsatellite(1)
+  //       }
+  //     }
+  //   }
+  // }
+}
+
 
 class Particle{
   constructor(pos,c){
@@ -358,50 +456,6 @@ function drawPlanets(){
  print(sec)
 }
 
-function draw() {
-  sec=int(millis()/1000)%during// 1 sec in 200sec
-  // test()
-  print(sec)
-  if(sec<=explodT){
-    drawParticles()
-  }else{
-    if(sec>route+explodT&&sec<=route*2+explodT){
-      //landscape changing
-      print('in s1')
-      scene1()
-    }
-    //not yet 
-    if(sec>route*2+explodT&&sec<route*3+explodT){
-      //planet glowing
-      print('in s2')
-      scene2()
-    }
-    //in main scene or dead scene
-    if((sec<=route+explodT||sec>during-30)){
-      drawBackground()
-      viewMove()
-      updateSun()
-      drawSun()
-      drawPlanets()
-      //sun is red && sun not dead
-      if(sec>=30+explodT&&during-sec>5){
-        drawsatellite(0)
-        if(sec>=33+explodT){
-          drawsatellite(1)
-        }
-      }
-    }
-  }
-}
-function test(){
-  background(200)
-  translate(0, 200, 0)
-  branch(100)
-}
-function branch(len){
-  strokeWeight(2)
-  line(0,0,0,0,-len,0)
-}
 // scene1
 function scene1(){
   push()
@@ -679,15 +733,26 @@ function keyPressed() {
   } else if (keyCode === DOWN_ARROW) {
     views[1]+=windowHeight/2/10
   }
-  if (keyCode === ) {
-    views[1]-=windowHeight/2/10
-
-  } else if (keyCode === DOWN_ARROW) {
-    views[1]+=windowHeight/2/10
-  }
 }
 
 function mouseClicked() {
+  //tree color
+  if(click<3){
+    click++
+    // print(click)
+    if(click==1){
+      treeColor=createVector(180, 120, 40)
+    }
+    if(click==2){
+      treeColor=createVector(220, 220, 220)
+    }
+    if(click==3){
+      treeColor=createVector(220, 120, 170)
+    }
+  }else{
+    click=0
+    treeColor=createVector(80, 120, 40)
+  }
   //change scene1 movement and color
   if(landscapePos){
     if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,landscapePos.x,landscapePos.y)<=min(wholeSize.x,wholeSize.y)){
@@ -711,7 +776,6 @@ function mouseClicked() {
       print('acc: '+acc)
     }
   }
-  
   // satellite show up
   if(pos.length>0){
     if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[0].x,pos[0].y)<=satelliteRadius){
