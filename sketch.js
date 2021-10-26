@@ -4,7 +4,7 @@ function preload() {
 }
 
 // Todo: customise the window
-//todo change color for scence2
+//todo change color for scene2
 //todo constructor for objects
 // windowsize
 
@@ -48,15 +48,15 @@ var planetColor=[]
 var speedInit=10
 var acc=10
 
-// for satellite
-var sateRadius=50
-var sateLine=65
-var satePos=[]//3d
-var sateColor=[]
-var sateNum=2
+// for satellitellite
+var satelliteRadius=50
+var satelliteLine=65
+var satellitePos=[]//3d
+var satelliteColor=[]
+var satelliteNum=2
 var pos=[] //2d
 
-//for scence1
+//for scene1
 var points=[]
 var mult=0.005
 var sence1Color;
@@ -66,7 +66,7 @@ var density =30
 var particles=[]
 var particleNum=200
 
-// for scence2
+// for scene2
 var move=1
 var rRange;
 var bRange;
@@ -89,20 +89,20 @@ function setup() {
   noiseDetail(1)
   frameRate(20);
 
-  for(let i=0;i<sateNum;i++){
-    let s=createVector((random(windowWidth/2-sateLine*2-20,initObitRadius+sateLine+2))*random([-1,1]), 
-    random(initObitRadius+sateLine+2, initObitRadius*1.8)*random([1,-0.5]), 
-    (random(windowHeight/2-sateLine*2-20,initObitRadius+sateLine+2))*random([-1,1]))
-    satePos.push(s)
+  for(let i=0;i<satelliteNum;i++){
+    let s=createVector((random(windowWidth/2-satelliteLine*2-20,initObitRadius+satelliteLine+2))*random([-1,1]), 
+    random(initObitRadius+satelliteLine+2, initObitRadius*1.8)*random([1,-0.5]), 
+    (random(windowHeight/2-satelliteLine*2-20,initObitRadius+satelliteLine+2))*random([-1,1]))
+    satellitePos.push(s)
     let c1=createVector(random(100,230), random(100,230), random(100,230))
     let c2=createVector(random(30,100), random(30,100), random(30,100))
-    sateColor.push(c1)
-    sateColor.push(c2)
+    satelliteColor.push(c1)
+    satelliteColor.push(c2)
   }
-  print(sateColor)
+  print(satelliteColor)
   sunColor=createVector(0, 0, 0)
 
-  // for scence1
+  // for scene1
   let space = width/density
   for(let i=0;i<width;i+=space){
     for(let j=0;j<height;j+=space){
@@ -119,7 +119,7 @@ function setup() {
     random(255),
     random(255)]
 
-    //for scence2
+    //for scene2
     landscapePos=createVector(0, 0, 0)
     rRange=shape==1?createVector(100, 200):createVector(random(100,200),0)
     gRange=shape==1?createVector(200, 0):createVector(random(150,180),0)
@@ -285,7 +285,7 @@ function drawPlanets(){
        print('planets dead!')
      }
    }
-  //in first scence
+  //in first scene
   if(sec%during<route){
        if(sec%10<=5){  
          if(sec%10>3){
@@ -343,11 +343,11 @@ function draw() {
   sec=int(millis()/1000)//1sec
   // print(sec%during)
   // if(sec%during>route&&sec%during<=route*2){
-  //   scence2()
+  //   scene2()
   // }
   //not yet 
   // if(sec%during>route*2&&sec%during<route*3){
-  //   scence1()
+  //   scene1()
   // }
   if(sec%during<explodT){
     drawParticles()
@@ -362,25 +362,25 @@ function draw() {
       drawPlanets()
       //sun is red && sun not dead
       if(sec%during>=30&&during-sec%during>5){
-        drawSate(0)
+        drawsatellite(0)
         if(sec>=33){
-          drawSate(1)
+          drawsatellite(1)
         }
       }
     }else{
-      //test scence1&scence2
+      //test scene1&scene2
       if(sec%during<70){
-        print(sec+'in scence1')
-        scence1()
+        print(sec+'in scene1')
+        scene1()
       }else{
-        print(sec+'in scence2')
-        scence2()
+        print(sec+'in scene2')
+        scene2()
       }
     } 
   }
 }
-// scence1
-function scence1(){
+// scene1
+function scene1(){
   push()
   translate(-windowWidth/2, -windowHeight/2)
   noStroke()
@@ -403,8 +403,8 @@ function scence1(){
   print('in1')
   pop()
 }
-// scence2
-function scence2(){
+// scene2
+function scene2(){
   push()
   background(150,150,250)
   translate(0, windowHeight/6, -windowWidth)
@@ -439,7 +439,7 @@ function scence2(){
   pop()
   print('in2')
 }
-// main scence
+// main scene
 function drawBackground(){
   background(0,0,30)
     //background little stars
@@ -620,21 +620,21 @@ function drawSun(){
   pop()
 }
 
-function drawSate(i){
-// Sate
+function drawsatellite(i){
+// satellite
 push()
 noStroke()
-translate(satePos[i].x, satePos[i].y, satePos[i].z)
+translate(satellitePos[i].x, satellitePos[i].y, satellitePos[i].z)
 rotateX(90+map(sin(speedInit/5),-1,1,-30,30));
 rotateZ(map(sin(speedInit/5),-1,1,-30,30));
 
 pos[i]=screenPosition(0,0,0)
 print(pos[i])
-fill(sateColor[i].x,sateColor[i].y,sateColor[i].z)
-sphere(sateRadius);
-fill(sateColor[1+i].x,sateColor[1+i].y,sateColor[i+1].z)
-cylinder(sateLine, 10);
-// torus(sateLine, 10)
+fill(satelliteColor[i].x,satelliteColor[i].y,satelliteColor[i].z)
+sphere(satelliteRadius);
+fill(satelliteColor[1+i].x,satelliteColor[1+i].y,satelliteColor[i+1].z)
+cylinder(satelliteLine, 10);
+// torus(satelliteLine, 10)
 pop()
 }
 
@@ -644,7 +644,7 @@ function mouseDragged() {
   let moveZ=map(mouseY,0,windowHeight,-windowHeight/2,windowHeight/2)
   views[0]=30-moveX
   views[2]=moveZ
-  // if(sec>30&&(dist(mouseX,mouseY,windowWidth/2,windowHeight/2)==sateLine[0]+)||dist()<=sateLine[1]){
+  // if(sec>30&&(dist(mouseX,mouseY,windowWidth/2,windowHeight/2)==satelliteLine[0]+)||dist()<=satelliteLine[1]){
 
   // }
   return false;
@@ -659,7 +659,7 @@ function keyPressed() {
   }
 }
 function mouseClicked() {
-  //change scence2 movement and color
+  //change scene2 movement and color
   if(landscapePos){
     if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,landscapePos.x,landscapePos.y)<=min(width/4*3,height/4*3)){
       move=move==0?1:0
@@ -684,20 +684,20 @@ function mouseClicked() {
     }
   }
   
-  // sate show up
+  // satellite show up
   if(pos.length>0){
-    if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[0].x,pos[0].y)<=sateRadius){
-    print('click sate! 1')
+    if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[0].x,pos[0].y)<=satelliteRadius){
+    print('click satellite! 1')
   }
-  if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[1].x,pos[1].y)<=sateRadius){
-    print('click sate! 2')
+  if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[1].x,pos[1].y)<=satelliteRadius){
+    print('click satellite! 2')
   }
 }
    
   // print(mouseX-windowWidth/2,mouseY-windowHeight/2)
 }
 
-//test sate to scence2
+//test satellite to scene2
 function doubleClicked() {
   //scenc2 
   recHeight=recHeight==200?400:200;
@@ -715,17 +715,17 @@ function doubleClicked() {
   }
   
   if(pos.length>0){
-    if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[0].x,pos[0].y)<=sateRadius){
+    if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[0].x,pos[0].y)<=satelliteRadius){
     next=1
-    print('doubleclick sate! 1')
+    print('doubleclick satellite! 1')
     //test
-    scence2()
+    scene2()
   }
-  if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[1].x,pos[1].y)<=sateRadius){
+  if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[1].x,pos[1].y)<=satelliteRadius){
     next=2
-    print('doubleclick sate! 2')
-    //test
-    scence2()
+    print('doubleclick satellite! 2')
+    //testF
+    scene2()
   }
   print('reset acc: '+acc)
   }
