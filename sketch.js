@@ -1,12 +1,14 @@
+//Todo:
+//1/add zoom_in/floating/color_change/ for satellite
+//2/modify the faulty scene pos with click
+//3/change color for scene1 more reasonale
 
+//todo list
+//customise the windowsize
+//constructor for objects
 function preload() {
   // load any assets (images, sounds, etc.) here
 }
-
-// Todo: customise the window
-//todo change color for scene2
-//todo constructor for objects
-// windowsize
 
 // function responsiveButton() {
 //   if(width > 400) { // large screen breakpoint
@@ -23,9 +25,9 @@ function preload() {
 //for space & time
 var views=[30,80,0]
 var sec=0
-var during=180//whole time 3*60sec
-var route=60 //each secen time
-var next=0
+var during=180//whole time 3*50sec+30sec(dead)
+var route=50 //each secen time
+// var next=0 //do not use
 
 // for obit & sun
 var shapeChoose=2;
@@ -56,18 +58,13 @@ var satelliteColor=[]
 var satelliteNum=2
 var pos=[] //2d
 
-//for scene1
-var points=[]
-var mult=0.005
-var sence1Color;
-var density =30
-
 //for particles
 var particles=[]
 var particleNum=200
 
-// for scene2
+// for scene1
 var move=1
+var wholeSize;
 var rRange;
 var bRange;
 var gRange;
@@ -77,6 +74,12 @@ var recOff=0.1
 var recMove=200;
 var landscapePos;
 var shape=1;
+
+//for scene2
+var points=[]
+var mult=0.005
+var sence1Color;
+var density =30
 
 function setup() {
   // add your setup code here
@@ -102,7 +105,14 @@ function setup() {
   print(satelliteColor)
   sunColor=createVector(0, 0, 0)
 
-  // for scene1
+ //for scene1
+ wholeSize=createVector(windowWidth/2,windowHeight/2)
+ landscapePos=createVector(0, 0, 0)
+ rRange=shape==1?createVector(100, 200):createVector(random(100,200),0)
+ gRange=shape==1?createVector(200, 0):createVector(random(150,180),0)
+ bRange=shape==1?createVector(0, 10):createVector(random(30,50),0)
+
+  // for scene2
   let space = width/density
   for(let i=0;i<width;i+=space){
     for(let j=0;j<height;j+=space){
@@ -112,18 +122,8 @@ function setup() {
   }
   shuffle(points, true)
   mult=random(0.002,0.01)
-  sence1Color=[random(255),
-    random(255),
-    random(255),
-    random(255),
-    random(255),
-    random(255)]
-
-    //for scene2
-    landscapePos=createVector(0, 0, 0)
-    rRange=shape==1?createVector(100, 200):createVector(random(100,200),0)
-    gRange=shape==1?createVector(200, 0):createVector(random(150,180),0)
-    bRange=shape==1?createVector(0, 10):createVector(random(30,50),0)
+  sence2Color=[random(255),random(255),random(255),random(255),random(255),random(255)]
+  
 }
 
 class Particle{
@@ -341,20 +341,27 @@ function windowResized() {
 function draw() {
   // add your draw code here
   sec=int(millis()/1000)//1sec
-  // print(sec%during)
-  // if(sec%during>route&&sec%during<=route*2){
-  //   scene2()
-  // }
-  //not yet 
-  // if(sec%during>route*2&&sec%during<route*3){
-  //   scene1()
-  // }
-  if(sec%during<explodT){
+  // test()
+  print(sec%during)
+  if(sec%during-explodT*(int(sec/during))<explodT&&sec%during-explodT*(int(sec/during))>=0){
     drawParticles()
   }else{
-    sec-=explodT*(int(sec/during)+1)//after explosing start from 0sec
+    //after explosing start from 0sec (for every during)
+    sec-=explodT*(int(sec/during)+1)
+    if(sec%during>route&&sec%during<=route*2){
+      //landscape changing
+      print('in s1')
+      scene1()
+    }
+    //not yet 
+    if(sec%during>route*2&&sec%during<route*3){
+      //planet glowing
+      print('in s2')
+      scene2()
+    }
     print(sec)
-    if((sec%during<=route||sec%during>during-30)&&next==0){
+    //in main scene or dead scene
+    if((sec%during<=route||sec%during>during-30)){
       drawBackground()
       viewMove()
       updateSun()
@@ -367,46 +374,22 @@ function draw() {
           drawsatellite(1)
         }
       }
-    }else{
-      //test scene1&scene2
-      if(sec%during<70){
-        print(sec+'in scene1')
-        scene1()
-      }else{
-        print(sec+'in scene2')
-        scene2()
-      }
-    } 
+    }
   }
+}
+function test(){
+  background(200)
+  translate(0, 200, 0)
+  branch(100)
+}
+function branch(len){
+  strokeWeight(2)
+  line(0,0,0,0,-len,0)
 }
 // scene1
 function scene1(){
   push()
-  translate(-windowWidth/2, -windowHeight/2)
-  noStroke()
-  let view=frameCount*50<=points.length?frameCount*50:points.length
-  // print(view)
-  for(let i=0;i<view;i++){
-    let r=map(points[i].x,0,width,sence1Color[0],sence1Color[1])
-    let g=map(points[i].y,0,height,sence1Color[2],sence1Color[3])
-    let b=map(points[i].x,0,width,sence1Color[4],sence1Color[5])
-    var a=map(dist(points[i].x,points[i].y,mouseX,mouseY),0,windowHeight/2,400,100)
-    fill(r,g,b,a)
-    let angle=map(noise(points[i].x*mult, points[i].y*mult),0,1,0,720)
-    points[i].add(createVector(cos(angle), sin(angle)))
-    ellipse(points[i].x, points[i].y,1)
-  }
-
-  if(sec>10){
-    // bg.remove()
-  }
-  print('in1')
-  pop()
-}
-// scene2
-function scene2(){
-  push()
-  background(150,150,250)
+  background(0,0,50)
   translate(0, windowHeight/6, -windowWidth)
   rotateX(70)
   rotateZ(frameCount/2*move)
@@ -417,9 +400,11 @@ function scene2(){
 
   let speed = frameCount/recMove
   let xOff=0
-  for(let x=-width/4*3; x<=width/4*3; x+=recSize ){
+  //now is 0,0,0 after transformation
+  landscapePos=screenPosition(0,0,0)
+  for(let x=-wholeSize.x; x<=wholeSize.x; x+=recSize ){
     let yOff=0
-    for(let y=-height/4*3;y<height/4*3;y+=recSize){
+    for(let y=-wholeSize.y;y<wholeSize.y;y+=recSize){
       let h =map(noise(xOff+speed,yOff+speed),0,1,-recHeight,recHeight)
 
       let r=shape==1?map(x,-width/2,width/2,rRange.x,rRange.y):rRange.x
@@ -429,7 +414,6 @@ function scene2(){
       push()
       fill(r,g,b)
       translate(x,y,-h/2)
-      landscapePos=screenPosition(0,0,0)
       box(recSize,recSize,h)
       pop()
       yOff += recOff
@@ -437,9 +421,34 @@ function scene2(){
     xOff += recOff
   }
   pop()
-  print('in2')
 }
-// main scene
+// scene2
+function scene2(){
+  if(sec%during%route<10){
+    push()
+    translate(-windowWidth/2, -windowHeight/2)
+    noStroke()
+    let view=frameCount*50<=points.length?frameCount*50:points.length
+    // print(view)
+    for(let i=0;i<view;i++){
+      let r=map(points[i].x,0,width,sence1Color[0],sence1Color[1])
+      let g=map(points[i].y,0,height,sence1Color[2],sence1Color[3])
+      let b=map(points[i].x,0,width,sence1Color[4],sence1Color[5])
+      var a=map(dist(points[i].x,points[i].y,mouseX,mouseY),0,windowHeight/2,400,100)
+      fill(r,g,b,a)
+      let angle=map(noise(points[i].x*mult, points[i].y*mult),0,1,0,720)
+      points[i].add(createVector(cos(angle), sin(angle)))
+      ellipse(points[i].x, points[i].y,1)
+    }
+    pop()
+  }else{
+    //planet glowing 20sec stop 20sec
+    background(0,0,30)
+  }
+  
+}
+
+// main scene background
 function drawBackground(){
   background(0,0,30)
     //background little stars
@@ -453,7 +462,7 @@ function drawBackground(){
     ellipse(random(windowWidth/4, windowWidth/2), random(-windowHeight/2,windowHeight/2), random(1,4), random(1,4));
     }
 }
-
+//main scene view change
 function viewMove(){
   let moveX=map(mouseX,0,windowWidth,-windowWidth/2,windowWidth/2)
   let moveY=map(mouseY,0,windowHeight,-windowHeight/2,windowHeight/2)
@@ -465,7 +474,7 @@ function viewMove(){
   let dirY = (mouseY / height - 0.5) * 2;
   directionalLight(250, 250, 250, -dirX, -dirY, -1);
 }
-//sun shrink speed
+//todo sun shrink speed
 function updateSun(){
   //sun birth 30sec
   if(sec%during<30){
@@ -593,7 +602,6 @@ function drawSun(){
     var r=map(sin(frameCount),-1,1,0,255)
     var g=map(cos(frameCount),-1,1,150,0)
     var b=map(j,0,circleNum,255,0)
-    // var a=map(j,circleNum,0,200,0)
     stroke(r,g,b)
     strokeWeight(random(1,2))
 
@@ -607,7 +615,7 @@ function drawSun(){
 
     push()
     // strength light
-    directionalLight(250, 250, 250, 0, 0, -10);
+    directionalLight(250, 250, 250, 0, 0, -1);
 
     //turn yellow to red
     fill(sunColor.x,sunColor.y,sunColor.z)
@@ -639,16 +647,14 @@ pop()
 }
 
 //interactive part with mouse(drag/click/doubleClick) and press up&down key
+
 function mouseDragged() {
   let moveX=map(mouseX,0,windowWidth,-windowWidth/2,windowWidth/2)
   let moveZ=map(mouseY,0,windowHeight,-windowHeight/2,windowHeight/2)
   views[0]=30-moveX
   views[2]=moveZ
-  // if(sec>30&&(dist(mouseX,mouseY,windowWidth/2,windowHeight/2)==satelliteLine[0]+)||dist()<=satelliteLine[1]){
-
-  // }
-  return false;
 }
+
 //add function
 function keyPressed() {
   if (keyCode === UP_ARROW) {
@@ -658,17 +664,17 @@ function keyPressed() {
     views[1]+=windowHeight/2/10
   }
 }
+
 function mouseClicked() {
-  //change scene2 movement and color
+  //change scene1 movement and color
   if(landscapePos){
-    if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,landscapePos.x,landscapePos.y)<=min(width/4*3,height/4*3)){
+    if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,landscapePos.x,landscapePos.y)<=min(wholeSize.x,wholeSize.y)){
       move=move==0?1:0
       print(move)
     }else{
         rRange=shape==1?createVector(random(100,150),random(200,250)):createVector(random(100,200),0)
         gRange=shape==1?createVector(random(100,150), 0):createVector(random(100,180),0)
         bRange=shape==1?createVector(0, random(30)):createVector(random(0,50),0)
-  
     }
   }
   //todo change color by mouse click other spaces or key up/down
@@ -687,17 +693,19 @@ function mouseClicked() {
   // satellite show up
   if(pos.length>0){
     if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[0].x,pos[0].y)<=satelliteRadius){
-    print('click satellite! 1')
+    print('click satellite! 1'+'+add zoom in')
+    //todo zoom in
   }
   if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[1].x,pos[1].y)<=satelliteRadius){
-    print('click satellite! 2')
+    print('click satellite! 2'+'+add zoom in')
+    //todo zoom in
   }
 }
    
   // print(mouseX-windowWidth/2,mouseY-windowHeight/2)
 }
 
-//test satellite to scene2
+//test satellite to scene1
 function doubleClicked() {
   //scenc2 
   recHeight=recHeight==200?400:200;
@@ -713,59 +721,59 @@ function doubleClicked() {
         acc=10
     }
   }
-  
+  //sate exist
   if(pos.length>0){
     if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[0].x,pos[0].y)<=satelliteRadius){
-    next=1
-    print('doubleclick satellite! 1')
-    //test
-    scene2()
-  }
-  if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[1].x,pos[1].y)<=satelliteRadius){
-    next=2
-    print('doubleclick satellite! 2')
-    //testF
-    scene2()
-  }
+    // next=1 //do not use
+    print('doubleclick satellite! 1'+'+add color change')
+    // todo change color
+    // scene2()
+    }
+    if(dist(mouseX-windowWidth/2,mouseY-windowHeight/2,pos[1].x,pos[1].y)<=satelliteRadius){
+      // next=2 //do not use
+      print('doubleclick satellite! 2'+'+add color change')
+      //todo change color
+      // scene1()
+    }
   print('reset acc: '+acc)
   }
 }
 
 
 
-//Todo: 
+//Todo: past methods
 
-function bounce(){
-  if(object.x>=windowWidth||object.x<=0){
-    speed.x*=-1
-  }
-  object.x+=speed.x
-  if(object.y>=windowHeight||object.y<=0){
-    speed.y*=-1    
-  }
-    object.y+=speed.y
+// function bounce(){
+//   if(object.x>=windowWidth||object.x<=0){
+//     speed.x*=-1
+//   }
+//   object.x+=speed.x
+//   if(object.y>=windowHeight||object.y<=0){
+//     speed.y*=-1    
+//   }
+//     object.y+=speed.y
   
-}
-function pointer(){
-  push()
-  fill(250)
-  ellipse(mouseX, mouseY, 100, 100)
-  pop()
-}
-function processer(){
-  push()
-  if(i<=1){
-    fill(200)
-  }
-  else if(i<=2){
-    fill(150)
-  }
-  else if(i<=3){
-    fill(50)
-  }
-  ellipse(object.x, object.y, 100, 100)
-  pop()
-}
+// }
+// function pointer(){
+//   push()
+//   fill(250)
+//   ellipse(mouseX, mouseY, 100, 100)
+//   pop()
+// }
+// function processer(){
+//   push()
+//   if(i<=1){
+//     fill(200)
+//   }
+//   else if(i<=2){
+//     fill(150)
+//   }
+//   else if(i<=3){
+//     fill(50)
+//   }
+//   ellipse(object.x, object.y, 100, 100)
+//   pop()
+// }
 
 
 // when you hit the spacebar, what's currently on the canvas will be saved (as
