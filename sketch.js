@@ -634,7 +634,7 @@ function drawLandscape(){
 function scene1(){
   push()
   directionalLight([250], 0, 0, -1);
-  background(0,0,50)
+  background(0,0,30)
   frameRate(90)
   //for whole scene
   translate(0, height/5, 0)
@@ -655,8 +655,11 @@ function scene1(){
 }
 // scene2
 function scene2(){
+  push()
+  background(0,0,30)
   directionalLight([255],createVector(0, 0, -1))
   drawTree()
+  pop()
   //todo
   // if(sec<10){
   //   push()
@@ -684,7 +687,6 @@ function scene2(){
 
 function drawTree(){
   push()
-  background(0,0,30)
   frameRate(60)
   // print(sec)
   if(sec-explodT-route*2<30){
@@ -705,7 +707,7 @@ function drawTree(){
   // branch(Treelen)
   pop()
 }
-//test change color
+
 function branch(len){
   strokeWeight(map(len,Treelen/10,Treelen,1,15))
   stroke(70,40,20)
@@ -750,7 +752,7 @@ function branch(len){
   }
 }
 
-//todo sun shrink speed
+//todo sun shrink speed color
 function updateSun(){
   //sun birth 30sec
   if(sec<30+explodT){
@@ -928,11 +930,6 @@ function universeMove(){
   rotateY(-15+moveX/40)
 }
 //interactive part with mouse(drag/click/doubleClick) and press up&down key
-
-// function mouseDragged() {
-//   views.x=map(mouseX,0,width,-width/2,width/2)
-//   views.y=map(mouseY,0,height,-height/2,height/2)
-// }
 
 //add function
 function keyPressed() {
