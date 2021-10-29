@@ -67,7 +67,7 @@ var obitNum=[]
 var sunPos;//2d
 
 //for explosion
-var explodT=5;
+var explodT=20;
 var explodR;
 
 // for planets
