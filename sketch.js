@@ -1,27 +1,13 @@
-//feedback
-//add sound interaction
+//add click funciton shootstar
+//add sound interaction(sun wave1,cloud height2 tree height3)
 
 //for main scene
-//planet num(repeat)
 
 //for scene 1
-//mouse wheel speed up(1)
-//mouse click left right change weather(1) 
-//click on the cloud change cloud color/click on the landscape pause/click other change color
+
 //cloud floating with mouse
 
 //for scene 2
-//tree glowing 10sec
-//interaction last 40sec
-//wind blew the tree with mouse move
-//double click the tree with fruits/single click leaves falling
-//click other space change forms
-//wheel speed up glowing
-
-//Todo:
-//1/add zoom_in/floating/color_change/ for satellite
-//2/modify the faulty scene pos with click
-//3/change color for scene1 more reasonale
 
 //todo list
 //customise the windowsize
@@ -90,10 +76,12 @@ var satellitePos2d=[] //2d
 
 //for particles
 var particles=[]
-var particleNum=200
+var particleNum=150
 
 // for scene1
 var wholeSize; //width/2,height/2
+var planeH;
+var planeW;
 // var space;
 var cloudH;
 var cloudW;
@@ -113,19 +101,15 @@ var landscapePos;
 var shape=0;
 
 //for scene2
-let treeType=0
-var points=[]
-var mult=0.005
-var sence2Color;
-var density =30
+// var points=[]
+// var mult=0.005
+// var sence2Color;
+// var density =30
+var treeType=1
 var treeColor;
 var click=0;
-var fruits=false;
-var Treelen=250
+var Treelen;
 var leavesPos=[];
-
-let snowflakes = []; // array to hold snowflake objects
-
 
 class Particle{
   constructor(pos,c,type){
@@ -274,15 +258,18 @@ function setup() {
   print(satelliteColor)
   
   //for scene1
-  cloudH=height/2
-  cloudW=height/2
+  cloudH=height/2//voice
+  cloudW=height/2//voice
   wholeSize=createVector(width/2,height/2)
   landscapePos=createVector(0, 0, 0)
-  //for shape=0
+  let len=sqrt((height*height+width*width))
+  planeH=width*height/len
+  planeW=width*width/len
+
   rRange=createVector(random(80, 200),0)
   gRange=createVector(random(100,150), 0)
   bRange=createVector(random(0,30),0)
-  //shape0
+  //shape0123
   recHeight=[cloudH/4,cloudH/3,cloudH/2,cloudH/3*2];//1-100,2-200 3-250
   recSize=[10,10,10,20]//1-10 2-20 3-30
   recOff=[0.1,0.1,0.1,1] //1-0.1 2-0.5 3-1
@@ -290,33 +277,52 @@ function setup() {
   shape=0
 
   // for scene2
-  // Treelen=height/4
-  let space = width/density
-  for(let i=0;i<width;i+=space){
-    for(let j=0;j<height;j+=space){
-      let p= createVector(i+random(-10,10), j+random(-10, 10))
-      points.push(p)
-    }
-  }
-  shuffle(points, true)
-  mult=random(0.002,0.01)
-  scene2Color=[random(255),random(255),random(255),random(255),random(255),random(255)]
+  Treelen=height/4
   treeColor=createVector(80, 120, 40)
+}
+//todo
+function reset(){
+  views=createVector(0, 0, 0)
+  // for scene2&3
+  if(sec==route+explodT||sec==route*2+explodT){
+    views.z=height-100//modify
+  }
+    //for planets
+  if(sec==0){
+    treeType=1
+      shape=0
+      planetNum=10
+      circleNum=1
+      let newPlanets=[]
+      for(let i=0;i<planetNum;i++){
+        // obitNum[i]=int(map(int(random(0,planetNum)),0,planetNum,circleNum,0))
+        obitNum[i]=int(random(1,circleNum+1))
+        var r=map(random(0, planetNum),0,planetNum,random(30,220),random(30,220))
+        var b=map(random(0, planetNum),0,planetNum,50,random(30,225))
+        var g=map(random(0, planetNum),0,planetNum,random(50,225),50)
+        let c=color(r,g,b)
+        planetColor[i]=c
+        let p=new Planet(i,random(10,360),planetColor[i])
+        newPlanets.push(p)
+      }
+      planets=newPlanets
+  }  
 }
 
 // main scene background
 function drawBackground(){
+  push()
   background(0,0,30)
     //background little stars
     fill(255);
     noStroke();
-    frameRate(60);
     for(let i=0;i<3;i++){
     ellipse(random(-width/2, -width/4), random(-height/2, height/2), random(2,4), random(2,4));
     ellipse(random(-width/4, 0), random(-initObitRadius,-height/2), random(2,5), random(2,5));
     ellipse(random(0, width/4), random(initObitRadius,height/2), random(2,4), random(2,4));
     ellipse(random(width/4, width/2), random(-height/2,height/2), random(1,4), random(1,4));
     }
+  pop()
 }
 
 function drawSnow() {
@@ -348,15 +354,14 @@ function drawCloud(){
 
 function draw() {
   background(30)
-  viewMove()
-  orbitControl();
-  directionalLight([255],0,0,-1)
   sec=int(millis()/1000)%during// 1 sec in 200sec
   //reset the view to zero point
   if(sec==0||sec==during-30||sec==route+explodT||sec==route*2+explodT){
-    views=createVector(0, 0, 0)
-    zoom=height-100
+    reset()
   }
+  viewMove()
+  orbitControl();
+  directionalLight([255],0,0,-1)
   // print(sec)
   //explosion & zoom sun
   if(sec<explodT+2){
@@ -367,34 +372,17 @@ function draw() {
     }  
   }
   else{
-    if(sec>=route+explodT&&sec<=route*2+explodT){
-      //landscape changing
-      if(sec==route+explodT){
-        zoom=height
-      }
-      if(sec<route+explodT+3){
-        zoom=zoom-20>0?zoom-20:0
-        translate(0, 0, zoom)
-      }
-        print('in s1')
-        scene1()
-      
+    if(sec>=route+explodT&&sec<route*2+explodT){
+      print('in s1')
+      scene1()
     }
-    if(sec>route*2+explodT&&sec<route*3+explodT){
-      //planet glowing
-      if(sec==route*2+explodT){
-        zoom=height
-      }
-      if(sec<route*2+explodT+3){
-        zoom=zoom-20>0?zoom-20:0
-        translate(0, 0, zoom)
-      }
-        print('in s2')
-        scene2()
-    
+    else if(sec>=route*2+explodT&&sec<route*3+explodT){
+      //tree glowing
+      print('in s2')
+      scene2()  
     }
     //in main scene or dead scene
-    if((sec<route+explodT||sec>=during-30)){
+    else if((sec<route+explodT||sec>=during-30)){
       mainScene()
     }
   }
@@ -402,8 +390,7 @@ function draw() {
 
 function drawParticles(){
   push()
-  frameRate(60)
-  // directionalLight([255],0,0,-1)
+  frameRate(90)
   background(0,0,30)
   rotateX(sin(frameCount/6)*360)
   rotateY(cos(frameCount/6)*360)
@@ -428,21 +415,23 @@ function drawParticles(){
 }
 
 function zoomSun(){
+  push()
   background(0,0,30)
   zoom=zoom-20>0?zoom-20:0
   translate(0, 0, zoom)
   initObitRadius=50
   circleNum=0
-  drawSun()
+  drawSunOrbit()
+  pop()
 }
 
 function drawPlanets(){
   //random planet color and pos and order every 10 sec
- //planet birth
+ //update every 10 secs
  if(sec%10==0){
 // for planets
+    let newPlanets=[];
    for(let i=0;i<planetNum;i++){
-    // obitNum[i]=int(map(int(random(0,planetNum)),0,planetNum,circleNum,0))
     obitNum[i]=int(random(1,circleNum+1))
     var r=map(random(0, planetNum),0,planetNum,random(30,220),random(30,220))
     var b=map(random(0, planetNum),0,planetNum,50,random(30,225))
@@ -450,45 +439,72 @@ function drawPlanets(){
     let c=color(r,g,b)
     planetColor[i]=c
     let p=new Planet(i,random(10,360),planetColor[i])
-    planets.push(p)
+    newPlanets.push(p)
   }
+  planets=newPlanets;
+  print(planets)
  } 
+
  //in very first scene slowly produce planets
  if(sec<=20+explodT){
    if(sec<10+explodT){  
-     if(sec%10>3){
+     if(sec%10<3){
+     }
+     else if(sec%10<5){
       num=0
       planets[num].update(0)
       planets[num].display()
-     }else if(sec%10>=5){
+     }
+     else if(sec%10<7){
       num=1
       planets[num].update(2)
       planets[num].display()
-     }else if(sec%10>=7){
       num=2
-      planets[num].update(4)
+      planets[num].update(-5)
       planets[num].display()
-    } 
+     }else if(sec%10<9){
+      num=3
+      planets[num].update(2)
+      planets[num].display()
+      num=4
+      planets[num].update(0)
+      planets[num].display()
     }else{
-    if(sec%10>=3){
+      num=5
+      planets[num].update(0)
+      planets[num].display()
+      num=6
+      planets[num].update(5)
+      planets[num].display()
+    }
+    }else{
+     if(sec%10<3){
+      num=1
+      planets[num].update(0)
+      planets[num].display()
+      num=2
+      planets[num].update(0)
+      planets[num].display()
+     } 
+    else if(sec%10<6){
       num=3
       planets[num].update(3)
       planets[num].display()
       num=4
       planets[num].update(0)
       planets[num].display()
-     }else if(sec%10>=6){
-      num=1
+     }else if(sec%10<8){
+      num=5
       planets[num].update(5)
       planets[num].display()
-      num=5
+      num=6
       planets[num].update(2)
       planets[num].display()
-     }else if(sec%10>=8){
-      num=2
+     }else{
+      num=7
       planets[num].update(8)
       planets[num].display()
-      num=6
+      num=8
       planets[num].update(5)
       planets[num].display()
     } 
@@ -499,7 +515,7 @@ function drawPlanets(){
     //in first scene normal produce planets
     if(sec<route+explodT){
        if(sec%10<=5){  
-         if(sec%10>3){
+         if(sec%10<3){
            num=0
            planets[num].update(0)
           planets[num].display()
@@ -563,36 +579,39 @@ function drawPlanets(){
 }
 
 function mainScene(){
-  //  main scene last 5 sec & dead stage last 5sec (zoom in)
-  if((sec>=explodT+route-5&&sec<route+explodT)||sec>during-1){
-    views.z+=20
+  //  main scene last 5 sec(zoom in)
+  if((sec>=explodT+route-3&&sec<route+explodT)){
+    views.z=views.z+20
   }
+  push()
   drawBackground()
   universeMove()
   updateSun()
-  drawSun()
+  drawSunOrbit()
   drawPlanets()
   //sun is glowing up not red
   if(sec>30+explodT){
     //sun not dead last 5sec
-    if(during-sec>5){
-      drawsatellite(0)
+    if(during-sec>10){
+      drawsatellite(0,0)
     }
     if(sec>=35+explodT){
       //sun not dead last 3sec
-      if(during-sec>3){
-        drawsatellite(1)
+      if(during-sec>5){
+        drawsatellite(1,0)
       }
     }
   }
+  pop()
 
 }
 
 function drawLandscape(){
   push()
+  frameRate(60)
   noStroke()
   fill(150,400)
-  plane(width,height);
+  plane(planeW,planeH);
   if(sec-explodT-route<=30){
     // print(sec)
     shape=shape<3?shape=int((sec-explodT-route)/10):3
@@ -632,12 +651,19 @@ function drawLandscape(){
 }
 // scene1
 function scene1(){
+  //landscape changing
+  if(sec>=explodT+route*2-3){
+    views.z+=50
+  }
+  if(sec<=route+explodT+3){
+    views.z=views.z-50>0?views.z-50:0
+  }
   push()
-  directionalLight([250], 0, 0, -1);
   background(0,0,30)
   frameRate(90)
   //for whole scene
   translate(0, height/5, 0)
+  drawsatellite(0,1)
   rotateX(90)
   rotateZ(map(mouseX,0,width,15,-15))
   rotateX(-15)
@@ -655,34 +681,18 @@ function scene1(){
 }
 // scene2
 function scene2(){
+  if(sec>=explodT+route*3-3){
+    views.z+=50
+  }
+  if(sec<=route*2+explodT+3){
+    views.z=views.z-50>0?views.z-50:0
+  }
   push()
-  background(0,0,30)
-  directionalLight([255],createVector(0, 0, -1))
+  // background(0,0,30)
+  drawBackground()
+  drawsatellite(1,1)
   drawTree()
-  pop()
-  //todo
-  // if(sec<10){
-  //   push()
-  //   translate(-width/2, -height/2)
-  //   noStroke()
-  //   let view=frameCount*50<=points.length?frameCount*50:points.length
-  //   // print(view)
-  //   for(let i=0;i<view;i++){
-  //     let r=map(points[i].x,0,width,scene2Color[0],scene2Color[1])
-  //     let g=map(points[i].y,0,height,scene2Color[2],scene2Color[3])
-  //     let b=map(points[i].x,0,width,scene2Color[4],scene2Color[5])
-  //     var a=map(dist(points[i].x,points[i].y,mouseX,mouseY),0,height/2,400,100)
-  //     fill(r,g,b,a)
-  //     let angle=map(noise(points[i].x*mult, points[i].y*mult),0,1,0,720)
-  //     points[i].add(createVector(cos(angle), sin(angle)))
-  //     ellipse(points[i].x, points[i].y,1)
-  //   }
-  //   pop()
-  // }else{
-  //   //planet glowing 20sec stop 20sec
-  //   background(0,0,30)
-  // }
-  
+  pop() 
 }
 
 function drawTree(){
@@ -691,24 +701,23 @@ function drawTree(){
   // print(sec)
   if(sec-explodT-route*2<30){
     let type=int((sec-explodT-route*2)/10)
-    print(type)
+    // print(type)
     randomSeed(type+1)
     treeColor=type==0?createVector(80, 120, 40):(type==1?createVector(180, 120, 40):((type==2?createVector(220, 120, 170):treeColor=createVector(220, 220, 220))))
   }
-  // else{
-  //   rotateY(map(mouseX,-width/2,width/2,-360,360))
-  // }
+  else{
+    randomSeed(1)
+    let direct=mouseX>=width/2?1:-1
+    rotateY(frameCount*5*direct)
+  }
   translate(0, height/2-Treelen/10, 0)
   
   branch(Treelen)
-  // translate(width/4, height/4, 0)
-  // branch(Treelen)
-  // translate(width/4, height/2-Treelen/10, 0)
-  // branch(Treelen)
   pop()
 }
 
 function branch(len){
+  push()
   strokeWeight(map(len,Treelen/10,Treelen,1,15))
   stroke(70,40,20)
   line(0,0,0,0,-len-2,0)
@@ -718,7 +727,7 @@ function branch(len){
       rotateY(random(100,140))
       push()
       rotateZ(random(20,40))
-      if(sec-explodT-route*2>30&&treeType==1){
+      if(sec-explodT-route*2>30){
         branch(len*0.7)
       }else{
       // print(frameCount)
@@ -750,10 +759,11 @@ function branch(len){
       endShape(CLOSE)
     }
   }
+  pop()
 }
 
-//todo sun shrink speed color
 function updateSun(){
+  push()
   //sun birth 30sec
   if(sec<30+explodT){
     sunColor.x=map(sin((sec-explodT)*3),0,1,50,250)
@@ -799,16 +809,16 @@ function updateSun(){
   }else{
     //sun mature 10sec
     if(sec<40+explodT){
-      //sun mature color
-    sunColor.x=min(255,map(sin(frameCount),-1,1,225,250)+(sec-30)*2)
-    sunColor.y=max(30,map(cos(frameCount),-1,1,180,150)-(sec-30)*10)
-    sunColor.z=max(10,map(cos(frameCount),1,-1,90,50)-(sec-30)*6)
+    //sun mature color
+    sunColor.x=map(sin((sec-explodT-30)*9),0,1,250,255)
+    sunColor.y=map(sin((sec-explodT-30)*9),0,1,150,30)
+    sunColor.z=map(sin((sec-explodT-30)*9),0,1,30,10)
     initObitRadius=98+5*abs(sin(frameCount*5))
     }
     //sun dead 30sec
     if(sec>during-30){
-      sunColor.x=map((sin((sec-during+30)*3)),0,1,250,30)
-      sunColor.y=map((sin((sec-during+30)*3)),0,1,50,10)
+      sunColor.x=map((sin((sec-during+30)*3)),0,1,255,10)
+      sunColor.y=map((sin((sec-during+30)*3)),0,1,30,0)
       sunColor.z=map((sin((sec-during+30)*3)),0,1,10,0)
       if(abs(during-(sec)-30)<3){
         initObitRadius=95-abs(cos(frameCount*5))*5
@@ -851,12 +861,12 @@ function updateSun(){
       
     }
   }
+  pop()
   
 }
 
-function drawSun(){
+function drawSunOrbit(){
   push()
-  directionalLight(250, 250, 250, 0, 0, -1);
   frameRate(10)
   stroke(200)
   noFill()
@@ -890,27 +900,29 @@ function drawSun(){
     sunPos=screenPosition(0,0,0)
     sphere(initObitRadius)
     pop()
-    
   }
   pop()
 }
 
-function drawsatellite(i){
+function drawsatellite(i,type){
 // satellite
 push()
+//moving satellite
 noStroke()
-translate(satellitePos[i].x+random(-10,10), satellitePos[i].y+random(-10,10), satellitePos[i].z)
-rotateX(90+map(sin(frameCount),-1,1,-30,30));
-rotateZ(map(cos(frameCount),-1,1,-30,30));
-
+let radius=0;
+if(type==0){
+  radius=satelliteRadius
+  translate(satellitePos[i].x+random(-10,10), satellitePos[i].y+random(-10,10), satellitePos[i].z)
+  rotateX(90+map(sin(frameCount),-1,1,-30,30));
+  rotateZ(map(cos(frameCount),-1,1,-30,30));
+  fill(satelliteColor[1+i*2].x,satelliteColor[1+i*2].y,satelliteColor[i*2+1].z)
+  cylinder(satelliteLine, 10);
+}else{
+  radius=width/2
+}
 satellitePos2d[i]=screenPosition(0,0,0)
-// print('2d'+satellitePos2d)
-// print(satellitePos2d[i])
 fill(satelliteColor[i*2].x,satelliteColor[i*2].y,satelliteColor[i*2].z)
-sphere(satelliteRadius);
-fill(satelliteColor[1+i*2].x,satelliteColor[1+i*2].y,satelliteColor[i*2+1].z)
-cylinder(satelliteLine, 10);
-// torus(satelliteLine, 10)
+sphere(radius);
 pop()
 }
 
@@ -930,7 +942,6 @@ function universeMove(){
   rotateY(-15+moveX/40)
 }
 //interactive part with mouse(drag/click/doubleClick) and press up&down key
-
 //add function
 function keyPressed() {
   if (keyCode === UP_ARROW) {
@@ -942,46 +953,49 @@ function keyPressed() {
 }
 
 function mouseClicked() {
-  //tree color
-  click++
-  if(click>0&&click<=3){
-    // print(click)
-    if(click==1){
-      treeColor=createVector(180, 120, 40)
+  if(sec>=explodT+route*2){
+    //tree color
+    click++
+    if(click>0&&click<=3){
+      // print(click)
+      if(click==1){
+        treeColor=createVector(180, 120, 40)
+      }
+      if(click==2){
+        treeColor=createVector(220, 220, 220)
+      }
+      if(click==3){
+        treeColor=createVector(220, 120, 170)
+      }
+    }else{
+      click=0
+      treeColor=createVector(80, 120, 40)
     }
-    if(click==2){
-      treeColor=createVector(220, 220, 220)
-    }
-    if(click==3){
-      treeColor=createVector(220, 120, 170)
-    }
-  }else{
-    click=0
-    treeColor=createVector(80, 120, 40)
   }
-  //change scene1 movement and color
-  if(landscapePos){
+  else if(sec>explodTroute+route){
+    //change scene1 movement and color
+    if(landscapePos){
     // if(dist(mouseX-width/2,mouseY-height/2,landscapePos.x,landscapePos.y)<=min(wholeSize.x,wholeSize.y)){
     //   move=move==0?1:0
     //   print(move)
-   if(abs(mouseX-width/2)<=wholeSize.x&&mouseY-height/2<0){
+    if(abs(mouseX-width/2)<=wholeSize.x&&mouseY-height/2<0){
       if(snow){
         snow=false
       } else{
         snow=true
       } 
       // print('snow')
-    }
-    else{
+      }
+      else{
         rRange=shape==3?createVector(random(100,150),0):createVector(random(80,120),0)
         gRange=shape==3?createVector(random(100,180),0):createVector(random(100,150),0)
         bRange=shape==3?createVector(random(0,50),0):createVector(random(0,30),0)
-    }
+     }
   }
-  //todo change color by mouse click other spaces or key up/down
- 
-  //sun exist
-  if(sunPos){
+  }
+  else if(sec>explodT){
+    //sun exist
+    if(sunPos){
     if(dist(mouseX-width/2,mouseY-height/2,sunPos.x,sunPos.y)<=initObitRadius){
       print('click sun!')
       if(acc<50){
@@ -989,8 +1003,8 @@ function mouseClicked() {
       }
       print('acc: '+acc)
     }
-  }
-  //sate exist
+    }
+    //sate exist
     if(satellitePos2d.length>0){
       if(dist(mouseX-width/2,mouseY-height/2,satellitePos2d[0].x,satellitePos2d[0].y)<=satelliteRadius){
       // next=1 //do not use
@@ -1011,41 +1025,30 @@ function mouseClicked() {
         satelliteColor[3]=c2
       }
     }
-  // satellite display up
-  // if(satellitePos2d.length>1&&sec<route+explodT){
-  //   if(dist(mouseX-width/2,mouseY-height/2,satellitePos2d[0].x,satellitePos2d[0].y)<=satelliteRadius){
-  //   print('click satellite! 1'+'+add zoom in')
-  //   //todo zoom in
-  //   views=createVector(-satellitePos[0].x, -satellitePos[0].y,-satellitePos[0].z+height/2)
-  // }
-  // else if(dist(mouseX-width/2,mouseY-height/2,satellitePos2d[1].x,satellitePos2d[1].y)<=satelliteRadius){
-  //   print('click satellite! 2'+'+add zoom in')
-  //   //todo zoom in
-  //   views=createVector(-satellitePos[1].x, -satellitePos[1].y,-satellitePos[0].z+height/2)
-  // }
-  // else{
-  //   views=createVector(0, 0, 0)
-  // }
-// }
+  }
+ 
 }
 
 function doubleClicked() {
   //for tree
-  treeType=treeType==0?1:0
-  //scene1 time first 30sec
-  if(sec-explodT-route>30){
+  if(sec>=explodT+route*2){
+    treeType=treeType==0?1:0
+  }
+  //scene1 after 30sec
+  if(sec>explodTroute+30){
     shape=shape==3?1:3
   }
-  print(shape)
-  
-
+  // print(shape)
   //sun exist
-  if(sunPos){
-    if(dist(mouseX-width/2,mouseY-height/2,sunPos.x,sunPos.y)<=initObitRadius){
-      print('reset acc!')
-        acc=10
+  if(sec>explodT&&sec<explodT+route){
+    if(sunPos){
+      if(dist(mouseX-width/2,mouseY-height/2,sunPos.x,sunPos.y)<=initObitRadius){
+        print('reset acc!')
+          acc=10
+      }
     }
   }
+  
 }
 
 // when you hit the spacebar, what's currently on the canvas will be saved (as
