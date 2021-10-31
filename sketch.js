@@ -1,13 +1,8 @@
-//add click funciton shootstar
+//modify random fault
 //add sound interaction(sun wave1,cloud height2 tree height3)
-
-//for main scene
-
-//for scene 1
-
 //cloud floating with mouse
+//add click funciton shootstar
 
-//for scene 2
 
 //todo list
 //customise the windowsize
@@ -955,6 +950,7 @@ function keyPressed() {
 function mouseClicked() {
   if(sec>=explodT+route*2){
     //tree color
+    print('click tree')
     click++
     if(click>0&&click<=3){
       // print(click)
@@ -972,12 +968,10 @@ function mouseClicked() {
       treeColor=createVector(80, 120, 40)
     }
   }
-  else if(sec>explodTroute+route){
+  else if(sec>explodT+route){
     //change scene1 movement and color
     if(landscapePos){
-    // if(dist(mouseX-width/2,mouseY-height/2,landscapePos.x,landscapePos.y)<=min(wholeSize.x,wholeSize.y)){
-    //   move=move==0?1:0
-    //   print(move)
+    print('click land')
     if(abs(mouseX-width/2)<=wholeSize.x&&mouseY-height/2<0){
       if(snow){
         snow=false
@@ -991,7 +985,7 @@ function mouseClicked() {
         gRange=shape==3?createVector(random(100,180),0):createVector(random(100,150),0)
         bRange=shape==3?createVector(random(0,50),0):createVector(random(0,30),0)
      }
-  }
+    }
   }
   else if(sec>explodT){
     //sun exist
@@ -1032,11 +1026,13 @@ function mouseClicked() {
 function doubleClicked() {
   //for tree
   if(sec>=explodT+route*2){
+    print('click tree')
     treeType=treeType==0?1:0
   }
   //scene1 after 30sec
-  if(sec>explodTroute+30){
+  if(sec>explodT+route+30){
     shape=shape==3?1:3
+    print('click land')
   }
   // print(shape)
   //sun exist
