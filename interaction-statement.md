@@ -23,4 +23,6 @@ The first 30 seconds show the growth of the tree, from a small tree to a big one
 
 The last scene shows the death of the solar system. The orbits will gradually reduce, the satellites disappear, and the sun will shrink and cool down.
 
-Benefit from recent developments in Art and Interaction Computing; We can easier obtain different input like click and sound to interact with our artwork, display it quickly and do some rapid iterations.
+Benefit from recent developments in Art and Interaction Computing; 
+We can easier obtain different kind of source like click and sound to interact with our artwork, because of the more affordable, convenient and flexible devices like PC. And we can display it to others quickly and do more rapid iterations, because the emerge of the handy platform and easier coding language like P5js.
+And also the compatible of hard device and coding, the expanding libraries(like 3Dto2D position library I've used) help us the create art work easier and faster.
