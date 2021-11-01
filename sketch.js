@@ -1,12 +1,7 @@
-//modify random fault
-//add sound interaction(sun wave1,cloud height2 tree height3)
-//cloud floating with mouse
-//add click funciton shootstar
-let mic;
-let mysound;
 //todo list
 //customise the windowsize
 //constructor for objects
+
 function preload() {
   // load any assets (images, sounds, etc.) here
   mysound = loadSound('assets/sound.flac');
@@ -17,87 +12,87 @@ function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
 }
 
+// for sound
+let mic;
+let mysound;
+
 //for space & time
-var views;
-var sec=0
-var during//whole time 20sec(explodT)+3*50sec(each scene)+30sec(dead)
-var route=50 //each secen time
-var dead=30 //end of the scene
-// var next=0 //do not use
+let views;
+let sec=0
+let during//whole time 20sec(explodT)+3*50sec(each scene)+30sec(dead)
+let route=50 //each secen time
+let dead=30 //end of the scene
+// let next=0 //do not use
 let zoom=0;
 let playSound=false
 
 // for obit & sun
-var shapeChoose=2;
-var wave=0//波动幅度
-var initObitRadius=50;
-var circleSpace=50;
-var circleNum=1;//max 10
-var sunColor;
-var obitNum=[]
-var sunPos;//2d
+let shapeChoose=2;
+let wave=0//波动幅度
+let initObitRadius=50;
+let circleSpace=50;
+let circleNum=1;//max 10
+let sunColor;
+let obitNum=[]
+let sunPos;//2d
 
 //for explosion
-var explodT=20;
-var explodR;
+let explodT=20;
+let explodR;
 
 // for planets
-// var planetRadius=20
-var planetNum=10;
-var planets=[]
-var planetColor=[]
+// let planetRadius=20
+let planetNum=10;
+let planets=[]
+let planetColor=[]
 
 //for movement
-var speedInit=10
-var acc=10
+let speedInit=10
+let acc=10
 
 // for satellitellite
-var satelliteRadius=50
-var satelliteLine=65
-var satellitePos=[]//3d
-var satelliteColor=[]
-var satelliteNum=2
-var satellitePos2d=[] //2d
-var sateMove=30
+let satelliteRadius=50
+let satelliteLine=65
+let satellitePos=[]//3d
+let satelliteColor=[]
+let satelliteNum=2
+let satellitePos2d=[] //2d
+let sateMove=30
 
 //for particles
-var particles=[]
-var particleNum=150
+let particles=[]
+let particleNum=150
 
 // for scene1
-var wholeSize; //width/2,height/2
-var planeH;
-var planeW;
-// var space;
-var cloudH;
-// var cloudM;
-// var cloudW;
-var clouds=[]
-var snow=false;
-var snowParticles=[]
-// var move=1
-var rRange;
-var bRange;
-var gRange;
+let wholeSize; //width/2,height/2
+let planeH;
+let planeW;
+// let space;
+let cloudH;
+// let cloudM;
+// let cloudW;
+let clouds=[]
+let snow=false;
+let snowParticles=[]
+// let move=1
+let rRange;
+let bRange;
+let gRange;
 //for shape1
-var recHeight=[];
-var recSize=[];
-var recOff=[]
-var recMove=[];
-var landscapePos;
-var shape=0;
+let recHeight=[];
+let recSize=[];
+let recOff=[]
+let recMove=[];
+let landscapePos;
+let shape=0;
 
 //for scene2
-// var points=[]
-// var mult=0.005
-// var sence2Color;
-// var density =30
-var treeSpeed
-var treeType=1
-var treeColor;
-var click=0;
-var Treelen;
-var leavesPos=[];
+let treeSpeed
+let treeType=1
+let treeColor;
+let click=0;
+let Treelen;
+let leavesPos=[];
 
 class Particle{
   constructor(pos,c,type){
@@ -198,7 +193,7 @@ class Cloud{
     pop()
   }
 }
-
+//for sound
 function micOperate(){
   let vol = mic.getLevel();//0-1.0
   print(vol)
@@ -238,15 +233,14 @@ function echo(){
   playSound = true;
   pop()
 }
-
 function mousePressed(fxn){
   echo()
 }
 function mouseReleased() {
-  // ramp amplitude to 0 over 0.5 seconds
-  osc.amp(0, 0.5);
+  osc.amp(0, 0.4);
   playSound = false;
 }
+
 function setup() {
   // add your setup code here
   createCanvas(windowWidth,windowHeight,WEBGL);
@@ -279,9 +273,9 @@ function setup() {
   for(let i=0;i<planetNum;i++){
     // obitNum[i]=int(map(int(random(0,planetNum)),0,planetNum,circleNum,0))
     obitNum[i]=int(random(1,circleNum+1))
-    var r=map(random(0, planetNum),0,planetNum,random(30,220),random(30,220))
-    var b=map(random(0, planetNum),0,planetNum,50,random(30,225))
-    var g=map(random(0, planetNum),0,planetNum,random(50,225),50)
+    let r=map(random(0, planetNum),0,planetNum,random(30,220),random(30,220))
+    let b=map(random(0, planetNum),0,planetNum,50,random(30,225))
+    let g=map(random(0, planetNum),0,planetNum,random(50,225),50)
     let c=color(r,g,b)
     planetColor[i]=c
     let p=new Planet(i,random(10,360),planetColor[i])
@@ -323,7 +317,6 @@ function setup() {
   Treelen=height/4
   treeColor=createVector(80, 120, 40)
 }
-//todo
 function reset(){
   views=createVector(0, 0, 0)
   // for scene2&3
@@ -337,50 +330,6 @@ function reset(){
       planetNum=10
       circleNum=1
   }  
-}
-
-// main scene background
-function drawBackground(){
-  push()
-  background(0,0,30)
-    //background little stars
-    fill(255);
-    noStroke();
-    for(let i=0;i<3;i++){
-    ellipse(random(-width/2, -width/4), random(-height/2, height/2), random(2,4), random(2,4));
-    ellipse(random(-width/4, 0), random(-initObitRadius,-height/2), random(2,5), random(2,5));
-    ellipse(random(0, width/4), random(initObitRadius,height/2), random(2,4), random(2,4));
-    ellipse(random(width/4, width/2), random(-height/2,height/2), random(1,4), random(1,4));
-    }
-  // echo()
-  pop()
-}
-
-function drawSnow() {
-  push()
-  frameRate(10)
-    for(let i=0;i<3;i++){
-      let pos=createVector(random(-wholeSize.x,wholeSize.x), random(-wholeSize.y,wholeSize.y), 0)
-      snowParticles.push(new Particle(pos,[230],1))
-    }
-    for (let particle of snowParticles) {
-      particle.update(1,map(mouseX,0,width,-wholeSize.x/2,wholeSize.x/2)); // update snowposition
-      particle.display(); // draw snow
-    }
-  pop()
-}
-
-function drawCloud(){
-  push()
-  // print(snow+'snow')
-  let c=snow==true?color(100,100,100):color(220,220,220)
-  // print(c)
-  for(let i=0;i<4;i++){
-    clouds.push(new Cloud(createVector(random(-1,1)*i*50+80,i*50*random(-1,1)+80,0),c))
-    clouds[i].update()
-    clouds[i].display()
-  }
-  pop()
 }
 
 function draw() {
@@ -422,6 +371,23 @@ function draw() {
   }
 }
 
+// main scene background
+function drawBackground(){
+  push()
+  background(0,0,30)
+    //background little stars
+    fill(255);
+    noStroke();
+    for(let i=0;i<3;i++){
+    ellipse(random(-width/2, -width/4), random(-height/2, height/2), random(2,4), random(2,4));
+    ellipse(random(-width/4, 0), random(-initObitRadius,-height/2), random(2,5), random(2,5));
+    ellipse(random(0, width/4), random(initObitRadius,height/2), random(2,4), random(2,4));
+    ellipse(random(width/4, width/2), random(-height/2,height/2), random(1,4), random(1,4));
+    }
+  // echo()
+  pop()
+}
+
 function drawParticles(){
   push()
   frameRate(90)
@@ -448,17 +414,6 @@ function drawParticles(){
   pop()
 }
 
-function zoomSun(){
-  push()
-  background(0,0,30)
-  zoom=zoom-20>0?zoom-20:0
-  translate(0, 0, zoom)
-  initObitRadius=50
-  circleNum=0
-  drawSunOrbit()
-  pop()
-}
-
 function drawPlanets(){
   //random planet color and pos and order every 10 sec
  //update every 10 secs
@@ -467,9 +422,9 @@ function drawPlanets(){
     let newPlanets=[];
    for(let i=0;i<planetNum;i++){
     obitNum[i]=int(random(1,circleNum+1))
-    var r=map(random(0, planetNum),0,planetNum,random(30,220),random(30,220))
-    var b=map(random(0, planetNum),0,planetNum,50,random(30,225))
-    var g=map(random(0, planetNum),0,planetNum,random(50,225),50)
+    let r=map(random(0, planetNum),0,planetNum,random(30,220),random(30,220))
+    let b=map(random(0, planetNum),0,planetNum,50,random(30,225))
+    let g=map(random(0, planetNum),0,planetNum,random(50,225),50)
     let c=color(r,g,b)
     planetColor[i]=c
     let p=new Planet(i,random(10,360),planetColor[i])
@@ -612,198 +567,14 @@ function drawPlanets(){
  print(sec)
 }
 
-function mainScene(){
-  //  main scene last 5 sec(zoom in)
-  if((sec>=explodT+route-3&&sec<route+explodT)){
-    views.z=views.z+20
-  }
-  push()
-  drawBackground()
-  if(playSound){
-    freq=map(mouseX, 0, width, 100, 500)
-    amp=map(mouseY, 0, height, 0,0.4)
-    osc.freq(freq, 0.15);
-    osc.amp(amp, 0.1);
-  }
-  universeMove()
-  updateSun()
-  drawSunOrbit()
-  drawPlanets()
-  
-  //sun is glowing up not red
-  if(sec>30+explodT){
-    //sun not dead last 5sec
-    if(during-sec>10){
-      drawsatellite(0,0)
-    }
-    if(sec>=35+explodT){
-      //sun not dead last 3sec
-      if(during-sec>5){
-        drawsatellite(1,0)
-      }
-    }
-  }
-  pop()
-
-}
-
-function drawLandscape(){
-  push()
-  frameRate(60)
-  noStroke()
-  fill(150,400)
-  plane(planeW,planeH);
-  if(sec-explodT-route<=30){
-    // print(sec)
-    shape=shape<3?shape=int((sec-explodT-route)/10):3
-    // print(shape)
-    if(shape>=0&&shape<3){
-      recMove[shape]=map(sec%10,0,10,recMove[shape],recMove[shape+1])
-      recHeight[shape]=map(sec%10,0,10,recHeight[shape],recHeight[shape+1])
-    }
-  }
-  let speed = frameCount/recMove[shape]
-  let xOff=0
-  //now is 0,0,0 after transformation
-  landscapePos=screenPosition(0,0,0)
-  for(let x=-wholeSize.x/2; x<=wholeSize.x/2; x+=recSize[shape] ){
-    let yOff=0
-    for(let y=-wholeSize.y/2;y<wholeSize.y/2; y+=recSize[shape]){
-      let h =map(noise(xOff+speed,yOff+speed),0,1,-recHeight[shape],recHeight[shape])
-
-      let r=shape==3?rRange.x:map(x,-width/2,width/2,rRange.x,rRange.y)
-      let g=shape==3?gRange.x:map(y,-height/2,height/2,gRange.x,gRange.y)
-      let b=shape==3?bRange.x:map(h,-recHeight,recHeight,bRange.x,bRange.y)
-      if(random(1)>0.9&&shape==3){
-        r=rRange.x+random(-20,20)
-        g=gRange.x+random(-20,20)
-        b=bRange.x+random(-20,20)
-      }
-      push()
-      fill(r,g,b)
-      translate(x,y,-h/2)
-      box(recSize[shape],recSize[shape],h)
-      pop()
-      yOff += recOff[shape]
-    }
-    xOff += recOff[shape]
-  }
-  pop()
-}
-// scene1
-function scene1(){
-  //landscape changing
-  if(sec>=explodT+route*2-3){
-    views.z+=50
-  }
-  if(sec<=route+explodT+3){
-    views.z=views.z-50>0?views.z-50:0
-  }
+function zoomSun(){
   push()
   background(0,0,30)
-  frameRate(90)
-  //for whole scene
-  translate(0, height/5, 0)
-  drawsatellite(0,1)
-  rotateX(90)
-  rotateZ(map(mouseX,0,width,15,-15))
-  rotateX(-15)
-  drawLandscape()
-  //for cloud
-  translate(0, 0,cloudH)
-  if(snow){
-    drawSnow()
-  }
-  drawCloud()
-  translate(-wholeSize.x/3, -wholeSize.y/2,0)
-  drawCloud()
-  // if()
-  pop()
-}
-// scene2
-function scene2(){
-  if(sec>=explodT+route*3-3){
-    views.z+=50
-  }
-  if(sec<=route*2+explodT+3){
-    views.z=views.z-50>0?views.z-50:0
-  }
-  push()
-  // background(0,0,30)
-  drawBackground()
-  drawsatellite(1,1)
-  drawTree()
-  pop() 
-}
-
-function drawTree(){
-  push()
-  frameRate(60)
-  // print(sec)
-  if(sec-explodT-route*2<30){
-    let type=int((sec-explodT-route*2)/10)
-    // print(type)
-    randomSeed(type+1)
-    treeColor=type==0?createVector(80, 120, 40):(type==1?createVector(180, 120, 40):((type==2?createVector(220, 120, 170):treeColor=createVector(220, 220, 220))))
-  }
-  else{
-    randomSeed(1)
-    let direct=mouseX>=width/2?1:-1
-    rotateY(frameCount*8*direct)
-  }
-  translate(0, height/2-Treelen/10, 0)
-  branch(Treelen)
-  translate(0, -Treelen/10, 0)
-  rotateX(90)
-  noStroke()
-  fill(treeColor.x,treeColor.y,treeColor.z)
-  plane(planeH,planeH);
-  pop()
-}
-
-function branch(len){
-  push()
-  strokeWeight(map(len,Treelen/10,Treelen,1,15))
-  stroke(70,40,20)
-  line(0,0,0,0,-len-2,0)
-  translate(0, -len, 0)
-  if(len>Treelen/10){
-    for(let i=0;i<3;i++){
-      rotateY(random(100,140))
-      push()
-      rotateZ(random(20,40))
-      if(sec-explodT-route*2>30){
-        branch(len*0.7)
-      }else{
-      // print(frameCount)
-        let glow=sec-explodT-route*2>=30?1:sin(frameCount*3)
-        branch(len*(0.5+0.15*glow))
-      }
-      pop()
-    }
-  }else{
-    noStroke()
-    // print(treeColor)
-    fill(treeColor.x+random(-20,20),treeColor.y+random(-20,20),treeColor.z+random(-20,20),200)
-    translate(5*Treelen/100, 0, 0)
-    rotateZ(90)
-    if(treeType==1){
-      push()
-      sphere(5)
-      pop()
-    }else{
-      beginShape()
-      for(let i=45;i<135;i++){
-        let radius=8*Treelen/100;
-        vertex(radius*cos(i), radius*sin(i))
-      }
-      for(let j=135;j>45;j--){
-        let radius=8*Treelen/100;
-        vertex(radius*cos(j), radius*sin(-j)+Treelen/10)
-      }
-      endShape(CLOSE)
-    }
-  }
+  zoom=zoom-20>0?zoom-20:0
+  translate(0, 0, zoom)
+  initObitRadius=50
+  circleNum=0
+  drawSunOrbit()
   pop()
 }
 
@@ -923,14 +694,14 @@ function drawSunOrbit(){
   }
   for(let j=1;j<=circleNum;j++){
     //random obit colors
-    var r=map(sin(frameCount),-1,1,0,255)
-    var g=map(cos(frameCount),-1,1,150,0)
-    var b=map(j,0,circleNum,255,0)
+    let r=map(sin(frameCount),-1,1,0,255)
+    let g=map(cos(frameCount),-1,1,150,0)
+    let b=map(j,0,circleNum,255,0)
     stroke(r,g,b)
     strokeWeight(random(1,2))
 
     //draw one obit
-    var radius=circleSpace*j+initObitRadius
+    let radius=circleSpace*j+initObitRadius
     beginShape()
     for(let i=0;i<360;i+=shapeChoose){
       vertex(radius*cos(i), radius*sin(i),sin(frameCount+radius/3-i+wave)*50)
@@ -970,6 +741,229 @@ fill(satelliteColor[i*2].x,satelliteColor[i*2].y,satelliteColor[i*2].z)
 sphere(radius);
 pop()
 }
+
+function mainScene(){
+  //  main scene last 5 sec(zoom in)
+  if((sec>=explodT+route-3&&sec<route+explodT)){
+    views.z=views.z+20
+  }
+  push()
+  drawBackground()
+  if(playSound){
+    freq=map(mouseX, 0, width, 100, 500)
+    amp=map(mouseY, 0, height, 0,0.4)
+    osc.freq(freq, 0.15);
+    osc.amp(amp, 0.1);
+  }
+  universeMove()
+  updateSun()
+  drawSunOrbit()
+  drawPlanets()
+  
+  //sun is glowing up not red
+  if(sec>30+explodT){
+    //sun not dead last 5sec
+    if(during-sec>10){
+      drawsatellite(0,0)
+    }
+    if(sec>=35+explodT){
+      //sun not dead last 3sec
+      if(during-sec>5){
+        drawsatellite(1,0)
+      }
+    }
+  }
+  pop()
+
+}
+
+function drawSnow() {
+  push()
+  frameRate(10)
+    for(let i=0;i<3;i++){
+      let pos=createVector(random(-wholeSize.x,wholeSize.x), random(-wholeSize.y,wholeSize.y), 0)
+      snowParticles.push(new Particle(pos,[230],1))
+    }
+    for (let particle of snowParticles) {
+      particle.update(1,map(mouseX,0,width,-wholeSize.x/2,wholeSize.x/2)); // update snowposition
+      particle.display(); // draw snow
+    }
+  pop()
+}
+
+function drawCloud(){
+  push()
+  // print(snow+'snow')
+  let c=snow==true?color(100,100,100):color(220,220,220)
+  // print(c)
+  for(let i=0;i<4;i++){
+    clouds.push(new Cloud(createVector(random(-1,1)*i*50+80,i*50*random(-1,1)+80,0),c))
+    clouds[i].update()
+    clouds[i].display()
+  }
+  pop()
+}
+
+function drawLandscape(){
+  push()
+  frameRate(60)
+  noStroke()
+  fill(150,400)
+  plane(planeW,planeH);
+  if(sec-explodT-route<=30){
+    // print(sec)
+    shape=shape<3?shape=int((sec-explodT-route)/10):3
+    // print(shape)
+    if(shape>=0&&shape<3){
+      recMove[shape]=map(sec%10,0,10,recMove[shape],recMove[shape+1])
+      recHeight[shape]=map(sec%10,0,10,recHeight[shape],recHeight[shape+1])
+    }
+  }
+  let speed = frameCount/recMove[shape]
+  let xOff=0
+  //now is 0,0,0 after transformation
+  landscapePos=screenPosition(0,0,0)
+  for(let x=-wholeSize.x/2; x<=wholeSize.x/2; x+=recSize[shape] ){
+    let yOff=0
+    for(let y=-wholeSize.y/2;y<wholeSize.y/2; y+=recSize[shape]){
+      let h =map(noise(xOff+speed,yOff+speed),0,1,-recHeight[shape],recHeight[shape])
+
+      let r=shape==3?rRange.x:map(x,-width/2,width/2,rRange.x,rRange.y)
+      let g=shape==3?gRange.x:map(y,-height/2,height/2,gRange.x,gRange.y)
+      let b=shape==3?bRange.x:map(h,-recHeight,recHeight,bRange.x,bRange.y)
+      if(random(1)>0.9&&shape==3){
+        r=rRange.x+random(-20,20)
+        g=gRange.x+random(-20,20)
+        b=bRange.x+random(-20,20)
+      }
+      push()
+      fill(r,g,b)
+      translate(x,y,-h/2)
+      box(recSize[shape],recSize[shape],h)
+      pop()
+      yOff += recOff[shape]
+    }
+    xOff += recOff[shape]
+  }
+  pop()
+}
+
+function scene1(){
+  //landscape changing
+  if(sec>=explodT+route*2-3){
+    views.z+=50
+  }
+  if(sec<=route+explodT+3){
+    views.z=views.z-50>0?views.z-50:0
+  }
+  push()
+  background(0,0,30)
+  frameRate(90)
+  //for whole scene
+  translate(0, height/5, 0)
+  drawsatellite(0,1)
+  rotateX(90)
+  rotateZ(map(mouseX,0,width,15,-15))
+  rotateX(-15)
+  drawLandscape()
+  //for cloud
+  translate(0, 0,cloudH)
+  if(snow){
+    drawSnow()
+  }
+  drawCloud()
+  translate(-wholeSize.x/3, -wholeSize.y/2,0)
+  drawCloud()
+  // if()
+  pop()
+}
+
+function scene2(){
+  if(sec>=explodT+route*3-3){
+    views.z+=50
+  }
+  if(sec<=route*2+explodT+3){
+    views.z=views.z-50>0?views.z-50:0
+  }
+  push()
+  // background(0,0,30)
+  drawBackground()
+  drawsatellite(1,1)
+  drawTree()
+  pop() 
+}
+
+function drawTree(){
+  push()
+  frameRate(60)
+  // print(sec)
+  if(sec-explodT-route*2<30){
+    let type=int((sec-explodT-route*2)/10)
+    // print(type)
+    randomSeed(type+1)
+    treeColor=type==0?createVector(80, 120, 40):(type==1?createVector(180, 120, 40):((type==2?createVector(220, 120, 170):treeColor=createVector(220, 220, 220))))
+  }
+  else{
+    randomSeed(1)
+    let direct=mouseX>=width/2?1:-1
+    rotateY(frameCount*8*direct)
+  }
+  translate(0, height/2-Treelen/10, 0)
+  branch(Treelen)
+  translate(0, -Treelen/10, 0)
+  rotateX(90)
+  noStroke()
+  fill(treeColor.x,treeColor.y,treeColor.z)
+  plane(planeH,planeH);
+  pop()
+}
+
+function branch(len){
+  push()
+  strokeWeight(map(len,Treelen/10,Treelen,1,15))
+  stroke(70,40,20)
+  line(0,0,0,0,-len-2,0)
+  translate(0, -len, 0)
+  if(len>Treelen/10){
+    for(let i=0;i<3;i++){
+      rotateY(random(100,140))
+      push()
+      rotateZ(random(20,40))
+      if(sec-explodT-route*2>30){
+        branch(len*0.7)
+      }else{
+      // print(frameCount)
+        let glow=sec-explodT-route*2>=30?1:sin(frameCount*3)
+        branch(len*(0.5+0.15*glow))
+      }
+      pop()
+    }
+  }else{
+    noStroke()
+    // print(treeColor)
+    fill(treeColor.x+random(-20,20),treeColor.y+random(-20,20),treeColor.z+random(-20,20),200)
+    translate(5*Treelen/100, 0, 0)
+    rotateZ(90)
+    if(treeType==1){
+      push()
+      sphere(5)
+      pop()
+    }else{
+      beginShape()
+      for(let i=45;i<135;i++){
+        let radius=8*Treelen/100;
+        vertex(radius*cos(i), radius*sin(i))
+      }
+      for(let j=135;j>45;j--){
+        let radius=8*Treelen/100;
+        vertex(radius*cos(j), radius*sin(-j)+Treelen/10)
+      }
+      endShape(CLOSE)
+    }
+  }
+  pop()
+}
+
 
 //zoom with wheel and light with mouse
 function viewMove(){

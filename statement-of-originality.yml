@@ -5,51 +5,32 @@ declaration: >-
   I declare that everything I have submitted in this assignment is entirely my
   own work, with the following exceptions:
 
-# add as many "name+comment" entries as necessary
-# (or remove it altogether if you haven't collaborated with anyone)
-# collaboration:
-#   - name:
-#     comment: >-
+# add as many "url+licence+comment" entries as necessary
+# (or remove it altogether if you haven't used any external code)
+code:
+  - comment: inspried by the youtube video (Sine wave structures)
+    url: https://www.youtube.com/watch?v=vmhRlDyPHMQ&list=PLwUlLzAS3RYow0T9ZXB0IomwB-DyBRTfm&index=1
+    licence: NA
 
-# # add as many "url+licence+comment" entries as necessary
-# # (or remove it altogether if you haven't used any external code)
-# code:
-#   - comment:
-#     url:
-#     licence:
+  - comment: inspried by the youtube video and modified by myself (Colorful landscape)
+    url: https://www.youtube.com/watch?v=R1tfyVyU0hg&list=PLwUlLzAS3RYow0T9ZXB0IomwB-DyBRTfm&index=6
+    licence: NA
 
-# https://www.youtube.com/watch?v=1-QXuR-XX_s&list=PLwUlLzAS3RYow0T9ZXB0IomwB-DyBRTfm&index=10
-# How to make a flow field in p5.js | Coding Project #9
+  - comment: inspried by the youtube video and modified by myself (3D particle explosions)
+    url: https://www.youtube.com/watch?v=MceZFeV2jhE&list=PLwUlLzAS3RYow0T9ZXB0IomwB-DyBRTfm&index=10
+    licence: NA
 
-# Sine wave structures in p5.js | Coding Project #1
-# https://www.youtube.com/watch?v=vmhRlDyPHMQ&list=PLwUlLzAS3RYow0T9ZXB0IomwB-DyBRTfm&index=1
+  - comment: inspried by the youtube video and modified by myself (3D recursive trees)
+    url: https://www.youtube.com/watch?v=tdbaIHjCKtA&list=PLwUlLzAS3RYow0T9ZXB0IomwB-DyBRTfm&index=14
+    licence: NA
 
-# https://www.youtube.com/watch?v=R1tfyVyU0hg&list=PLwUlLzAS3RYow0T9ZXB0IomwB-DyBRTfm&index=6
-# Colorful landscape with perlin noise in p5.js | Coding Project #6
+# add as many "url+licence+comment" entries as necessary
+# (or remove it altogether if you haven't used any external assets)
+assets:
+  - comment: P5 library open source (3d pos to 2d pos) 
+    url: https://github.com/bohnacker/p5js-screenPosition
+    licence: MIT License 
 
-# https://www.youtube.com/watch?v=MceZFeV2jhE&list=PLwUlLzAS3RYow0T9ZXB0IomwB-DyBRTfm&index=10
-# 3D particle explosions in p5.js | Coding Project #10
-
-# https://www.youtube.com/watch?v=tdbaIHjCKtA&list=PLwUlLzAS3RYow0T9ZXB0IomwB-DyBRTfm&index=14
-# 3D realistic, recursive trees in p5.js | Coding Project #14
-
-# not use
-# https://www.youtube.com/watch?v=FO87ggFryk4
-# p5.js Tutorial - Shooting Star Maker
-
-# # add as many "url+licence+comment" entries as necessary
-# # (or remove it altogether if you haven't used any external assets)
-# assets:
-#   - comment:
-#     url:
-#     licence:
-
-  # 3d to 2d open source
-# https://github.com/bohnacker/p5js-screenPosition
 # sign *your* name and uid here
-
-# https://freesound.org/people/Timbre/sounds/594012/
-# Timbre
-# CC BY-NC 3.0
 name: Xiran Yan
 uid: u7167582
