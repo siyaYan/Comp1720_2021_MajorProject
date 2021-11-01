@@ -2,30 +2,20 @@
 //add sound interaction(sun wave1,cloud height2 tree height3)
 //cloud floating with mouse
 //add click funciton shootstar
-
-
+let mic;
+let mysound;
 //todo list
 //customise the windowsize
 //constructor for objects
 function preload() {
   // load any assets (images, sounds, etc.) here
+  mysound = loadSound('assets/sound.flac');
+  
 }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
 }
-
-// function responsiveButton() {
-//   if(width > 400) { // large screen breakpoint
-//     rect(width*0.1, width*0.1, width*0.3,width*0.1);
-//     textSize(width*0.05);
-//     text("CLICK ME", width*0.13,width*0.17);
-//   } else { // mobile screen breakpoint
-//     rect(width*0.1, width*0.1, width*0.8,width*0.1);
-//     textSize(width*0.05);
-//     text("CLICK ME", width*0.36 ,width*0.17);
-//   }
-// }
 
 //for space & time
 var views;
@@ -35,7 +25,7 @@ var route=50 //each secen time
 var dead=30 //end of the scene
 // var next=0 //do not use
 let zoom=0;
-let zoomPos;
+let playSound=false
 
 // for obit & sun
 var shapeChoose=2;
@@ -68,6 +58,7 @@ var satellitePos=[]//3d
 var satelliteColor=[]
 var satelliteNum=2
 var satellitePos2d=[] //2d
+var sateMove=30
 
 //for particles
 var particles=[]
@@ -79,11 +70,12 @@ var planeH;
 var planeW;
 // var space;
 var cloudH;
-var cloudW;
+// var cloudM;
+// var cloudW;
 var clouds=[]
 var snow=false;
 var snowParticles=[]
-var move=1
+// var move=1
 var rRange;
 var bRange;
 var gRange;
@@ -100,6 +92,7 @@ var shape=0;
 // var mult=0.005
 // var sence2Color;
 // var density =30
+var treeSpeed
 var treeType=1
 var treeColor;
 var click=0;
@@ -124,7 +117,7 @@ class Particle{
     this.pos.add(this.vel)
      //delete particles are away from the explosion center
      if(type==0){
-      if(dist(this.pos.x,this.pos.y,this.pos.z,0,0,0)>explodR*3){
+      if(dist(this.pos.x,this.pos.y,this.pos.z,0,0,0)>explodR*2){
         let index = particles.indexOf(this);
         particles.splice(index,1)
       }
@@ -206,6 +199,54 @@ class Cloud{
   }
 }
 
+function micOperate(){
+  let vol = mic.getLevel();//0-1.0
+  print(vol)
+  if(sec<=explodT){
+    explodR=map(vol, 0, 1, height/4, height);
+    particleNum=map(vol, 0, 1, 150, 250);
+    print('explodR:'+explodR)
+  }
+  else if(sec<=explodT+route){
+      acc=map(vol, 0, 1, 10, 50);
+      print('voice acc: '+acc)
+      sateMove=map(vol, 0, 1, 30, 180);
+  }
+  else if(sec<=explodT+route*2){
+      recMove[0]=50*map(vol,0,1,1,0.5)
+      recMove[1]=100*map(vol,0,1,1,0.5)
+      recMove[2]=150*map(vol,0,1,1,0.5)
+      recMove[3]=400*map(vol,0,1,1,0.5)  
+    print('recMove '+recMove)
+  }  
+}
+function echo(){
+  push()
+  strokeWeight(2)
+  noFill()
+  stroke(220)
+  let change=random(5)
+    // fill(200)
+  strokeWeight(1.5)
+  ellipse(mouseX-width/2, mouseY-height/2,10+change*sin(frameCount), 10+change*cos(frameCount))
+  strokeWeight(0.8)
+  ellipse(mouseX-width/2, mouseY-height/2,20+change*sin(frameCount), 20+change*cos(frameCount))
+  strokeWeight(0.4)
+  ellipse(mouseX-width/2, mouseY-height/2,30+change*sin(frameCount), 30+change*cos(frameCount))
+  print('echo')
+  osc.start();
+  playSound = true;
+  pop()
+}
+
+function mousePressed(fxn){
+  echo()
+}
+function mouseReleased() {
+  // ramp amplitude to 0 over 0.5 seconds
+  osc.amp(0, 0.5);
+  playSound = false;
+}
 function setup() {
   // add your setup code here
   createCanvas(windowWidth,windowHeight,WEBGL);
@@ -216,7 +257,15 @@ function setup() {
   ellipseMode(RADIUS);
   noiseDetail(1)
   frameRate(60);
-  // mouseWheel(changeWithWheel) 
+
+  mysound.amp(0.05)
+  mysound.loop();
+  mysound.play();
+
+  osc = new p5.Oscillator('sine');
+
+  mic = new p5.AudioIn();
+  mic.start();
   
   during=3*route+explodT+30
 
@@ -254,7 +303,6 @@ function setup() {
   
   //for scene1
   cloudH=height/2//voice
-  cloudW=height/2//voice
   wholeSize=createVector(width/2,height/2)
   landscapePos=createVector(0, 0, 0)
   let len=sqrt((height*height+width*width))
@@ -288,19 +336,6 @@ function reset(){
       shape=0
       planetNum=10
       circleNum=1
-      let newPlanets=[]
-      for(let i=0;i<planetNum;i++){
-        // obitNum[i]=int(map(int(random(0,planetNum)),0,planetNum,circleNum,0))
-        obitNum[i]=int(random(1,circleNum+1))
-        var r=map(random(0, planetNum),0,planetNum,random(30,220),random(30,220))
-        var b=map(random(0, planetNum),0,planetNum,50,random(30,225))
-        var g=map(random(0, planetNum),0,planetNum,random(50,225),50)
-        let c=color(r,g,b)
-        planetColor[i]=c
-        let p=new Planet(i,random(10,360),planetColor[i])
-        newPlanets.push(p)
-      }
-      planets=newPlanets
   }  
 }
 
@@ -317,6 +352,7 @@ function drawBackground(){
     ellipse(random(0, width/4), random(initObitRadius,height/2), random(2,4), random(2,4));
     ellipse(random(width/4, width/2), random(-height/2,height/2), random(1,4), random(1,4));
     }
+  // echo()
   pop()
 }
 
@@ -348,9 +384,12 @@ function drawCloud(){
 }
 
 function draw() {
+ 
   background(30)
+  micOperate()
   sec=int(millis()/1000)%during// 1 sec in 200sec
-  //reset the view to zero point
+  // drawTree()
+  // reset the view to zero point
   if(sec==0||sec==during-30||sec==route+explodT||sec==route*2+explodT){
     reset()
   }
@@ -580,10 +619,17 @@ function mainScene(){
   }
   push()
   drawBackground()
+  if(playSound){
+    freq=map(mouseX, 0, width, 100, 500)
+    amp=map(mouseY, 0, height, 0,0.4)
+    osc.freq(freq, 0.15);
+    osc.amp(amp, 0.1);
+  }
   universeMove()
   updateSun()
   drawSunOrbit()
   drawPlanets()
+  
   //sun is glowing up not red
   if(sec>30+explodT){
     //sun not dead last 5sec
@@ -703,11 +749,15 @@ function drawTree(){
   else{
     randomSeed(1)
     let direct=mouseX>=width/2?1:-1
-    rotateY(frameCount*5*direct)
+    rotateY(frameCount*8*direct)
   }
   translate(0, height/2-Treelen/10, 0)
-  
   branch(Treelen)
+  translate(0, -Treelen/10, 0)
+  rotateX(90)
+  noStroke()
+  fill(treeColor.x,treeColor.y,treeColor.z)
+  plane(planeH,planeH);
   pop()
 }
 
@@ -832,7 +882,7 @@ function updateSun(){
       else if(abs(during-(sec)-30)<15){
         initObitRadius=75-abs(cos(frameCount*5))*5
         circleNum=5
-        planetNum=0
+        // planetNum=0
       }
       else if(abs(during-(sec)-30)<18){
         initObitRadius=70-abs(cos(frameCount*5))*5
@@ -908,8 +958,8 @@ let radius=0;
 if(type==0){
   radius=satelliteRadius
   translate(satellitePos[i].x+random(-10,10), satellitePos[i].y+random(-10,10), satellitePos[i].z)
-  rotateX(90+map(sin(frameCount),-1,1,-30,30));
-  rotateZ(map(cos(frameCount),-1,1,-30,30));
+  rotateX(90+map(sin(frameCount),-1,1,-sateMove,sateMove));
+  rotateY(map(cos(frameCount),-1,1,sateMove,-sateMove));
   fill(satelliteColor[1+i*2].x,satelliteColor[1+i*2].y,satelliteColor[i*2+1].z)
   cylinder(satelliteLine, 10);
 }else{
@@ -987,7 +1037,7 @@ function mouseClicked() {
      }
     }
   }
-  else if(sec>explodT){
+  if((sec>explodT&&sec<=explodT+route)||sec>during-30){
     //sun exist
     if(sunPos){
     if(dist(mouseX-width/2,mouseY-height/2,sunPos.x,sunPos.y)<=initObitRadius){
