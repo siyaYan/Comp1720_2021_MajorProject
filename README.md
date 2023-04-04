@@ -1,4 +1,4 @@
-# COMP1720/6720 major project template
+# This is P5.JS file for ANU COMP1720/6720 course major project.
 
 https://cs.anu.edu.au/courses/comp1720/assessments/05-major-project/
 
